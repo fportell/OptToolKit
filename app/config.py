@@ -124,6 +124,57 @@ class Config:
     ENABLE_PYTEST_COV = os.getenv('ENABLE_PYTEST_COV', 'true').lower() == 'true'
     COVERAGE_THRESHOLD = int(os.getenv('COVERAGE_THRESHOLD', '80'))
 
+    # =========================================================================
+    # Tools Configuration (per FR-005, T047)
+    # =========================================================================
+    TOOLS = [
+        {
+            'id': 'geolocation',
+            'name': 'Geolocation Tool',
+            'description': 'Extract GPS coordinates from images and visualize on an interactive map. Supports JPEG/PNG with EXIF data.',
+            'icon': 'bi-geo-alt-fill',
+            'color': 'primary',
+            'url': '/tools/geolocation',
+            'status': 'active'
+        },
+        {
+            'id': 'summary-revision',
+            'name': 'Summary Revision',
+            'description': 'AI-powered content revision using OpenAI GPT-4. Review, improve, and refine text with intelligent suggestions.',
+            'icon': 'bi-file-text',
+            'color': 'success',
+            'url': '/tools/summary-revision',
+            'status': 'active'
+        },
+        {
+            'id': 'dr-tracker',
+            'name': 'DR-Tracker Builder',
+            'description': 'Generate structured DR-Tracker reports from text prompts. Supports multiple output formats (CSV, JSON, XLSX).',
+            'icon': 'bi-table',
+            'color': 'warning',
+            'url': '/tools/dr-tracker',
+            'status': 'active'
+        },
+        {
+            'id': 'chatbot',
+            'name': 'DR Knowledge Chatbot',
+            'description': 'Interactive chatbot powered by sentence-transformers and OpenAI. Query DR database with natural language.',
+            'icon': 'bi-chat-dots',
+            'color': 'info',
+            'url': '/tools/chatbot',
+            'status': 'active'
+        },
+        {
+            'id': 'rss-manager',
+            'name': 'RSS Manager',
+            'description': 'Manage RSS feed subscriptions. Add, view, update, and delete feeds from a centralized dashboard.',
+            'icon': 'bi-rss',
+            'color': 'danger',
+            'url': '/tools/rss-manager',
+            'status': 'active'
+        }
+    ]
+
     @staticmethod
     def validate_config() -> Dict[str, Any]:
         """
