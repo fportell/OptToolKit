@@ -86,9 +86,11 @@ def init_extensions(app: Flask) -> None:
 def register_blueprints(app: Flask) -> None:
     """Register application blueprints (routes)."""
     from app.routes.landing import landing_bp
+    from app.routes.tools.geolocation import geolocation_bp
 
     app.register_blueprint(landing_bp)
-    app.logger.info("Blueprints registered: landing")
+    app.register_blueprint(geolocation_bp)
+    app.logger.info("Blueprints registered: landing, geolocation")
 
 
 def register_error_handlers(app: Flask) -> None:
