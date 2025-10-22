@@ -32,7 +32,7 @@
         <!-- Main Content Card -->
         <div class="card shadow-sm">
             <div class="card-body">
-                <form method="POST" action="{{ url_for('geolocation.process') }}" id="geolocationForm">
+                <form method="POST" action="{{ url_for('geolocation.process') }}" id="geolocationForm" autocomplete="off">
 
                     <!-- Search Filter (moved to top for better UX) -->
                     <div class="mb-3">
@@ -225,6 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update count when any checkbox changes
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', updateSelectionCount);
+    });
+
+    // Ensure all checkboxes are unchecked on page load (prevent browser caching)
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
     });
 
     // Auto-focus search input
