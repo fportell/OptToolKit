@@ -137,7 +137,7 @@ class Config:
         {
             'id': 'geolocation',
             'name': 'Geolocation Tool',
-            'description': 'Extract GPS coordinates from images and visualize on an interactive map. Supports JPEG/PNG with EXIF data.',
+            'description': 'Country/region selection and area attribution for standardized reporting. Uses UN M49 regional standards to determine reporting language.',
             'icon': 'bi-geo-alt-fill',
             'color': 'primary',
             'url': '/tools/geolocation',

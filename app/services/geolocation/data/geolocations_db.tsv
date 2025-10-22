@@ -1,0 +1,266 @@
+CONTINENT	REGION	COUNTRY	CAN_PROV
+Asia	Southern Asia	Afghanistan	N/A
+Europe	Northern Europe	Åland	N/A
+Europe	Southern Europe	Albania	N/A
+Africa	Northern Africa	Algeria	N/A
+Oceania	Polynesia	American Samoa	N/A
+Europe	Southern Europe	Andorra	N/A
+Africa	Middle Africa	Angola	N/A
+Americas	Caribbean	Anguilla	N/A
+Antarctica	Antarctica	Antarctica	N/A
+Americas	Caribbean	Antigua and Barbuda	N/A
+Americas	South America	Argentina	N/A
+Asia	Western Asia	Armenia	N/A
+Americas	Caribbean	Aruba	N/A
+Oceania	Australia and New Zealand	Australia	N/A
+Europe	Western Europe	Austria	N/A
+Asia	Western Asia	Azerbaijan	N/A
+Americas	Caribbean	The Bahamas	N/A
+Asia	Western Asia	Bahrain	N/A
+Asia	Southern Asia	Bangladesh	N/A
+Americas	Caribbean	Barbados	N/A
+Europe	Eastern Europe	Belarus	N/A
+Europe	Western Europe	Belgium	N/A
+Americas	Central America	Belize	N/A
+Africa	Western Africa	Benin	N/A
+Americas	Northern America	Bermuda	N/A
+Asia	Southern Asia	Bhutan	N/A
+Americas	South America	Bolivia	N/A
+Americas	Caribbean	Bonaire, Sint Eustatius and Saba	N/A
+Europe	Southern Europe	Bosnia and Herzegovina	N/A
+Africa	Southern Africa	Botswana	N/A
+Americas	Caribbean	Bouvet Island	N/A
+Americas	South America	Brazil	N/A
+Antarctica	Antarctica	British Antarctic Territory	N/A
+Africa	Eastern Africa	British Indian Ocean Territory	N/A
+Americas	Caribbean	British Virgin Islands	N/A
+Asia	South-eastern Asia	Brunei	N/A
+Europe	Eastern Europe	Bulgaria	N/A
+Africa	Western Africa	Burkina Faso	N/A
+Africa	Eastern Africa	Burundi	N/A
+Africa	Western Africa	Cabo Verde	N/A
+Asia	South-eastern Asia	Cambodia	N/A
+Africa	Middle Africa	Cameroon	N/A
+Americas	Northern America	Canada	Alberta
+Americas	Northern America	Canada	British Columbia
+Americas	Northern America	Canada	Manitoba
+Americas	Northern America	Canada	New Brunswick
+Americas	Northern America	Canada	Newfoundland and Labrador
+Americas	Northern America	Canada	Northwest Territories
+Americas	Northern America	Canada	Nova Scotia
+Americas	Northern America	Canada	Nunavut
+Americas	Northern America	Canada	Ontario
+Americas	Northern America	Canada	Prince Edward Island
+Americas	Northern America	Canada	Quebec
+Americas	Northern America	Canada	Saskatchewan
+Americas	Northern America	Canada	Yukon
+Americas	Caribbean	Cayman Islands	N/A
+Africa	Middle Africa	Central African Republic	N/A
+Africa	Middle Africa	Chad	N/A
+Americas	South America	Chile	N/A
+Asia	Eastern Asia	China	N/A
+Oceania	Australia and New Zealand	Christmas Island	N/A
+Oceania	Australia and New Zealand	Cocos (Keeling) Islands	N/A
+Americas	South America	Colombia	N/A
+Africa	Eastern Africa	Comoros	N/A
+Africa	Middle Africa	Congo	N/A
+Oceania	Polynesia	Cook Islands	N/A
+Americas	Central America	Costa Rica	N/A
+Africa	Western Africa	Côte d'Ivoire	N/A
+Europe	Southern Europe	Croatia	N/A
+Americas	Caribbean	Cuba	N/A
+Americas	Caribbean	Curaçao	N/A
+Asia	Western Asia	Cyprus	N/A
+Europe	Eastern Europe	Czechia	N/A
+Africa	Middle Africa	Democratic Republic of Congo	N/A
+Europe	Northern Europe	Denmark	N/A
+Africa	Eastern Africa	Djibouti	N/A
+Americas	Caribbean	Dominica	N/A
+Americas	Caribbean	Dominican Republic	N/A
+Americas	South America	Ecuador	N/A
+Africa	Northern Africa	Egypt	N/A
+Americas	Central America	El Salvador	N/A
+Africa	Middle Africa	Equatorial Guinea	N/A
+Africa	Eastern Africa	Eritrea	N/A
+Europe	Northern Europe	Estonia	N/A
+Africa	Southern Africa	Eswatini	N/A
+Africa	Eastern Africa	Ethiopia	N/A
+Americas	South America	Falkland Islands	N/A
+Europe	Northern Europe	Faroe Islands	N/A
+Oceania	Melanesia	Fiji	N/A
+Europe	Northern Europe	Finland	N/A
+Europe	Western Europe	France	N/A
+Americas	South America	French Guiana	N/A
+Oceania	Polynesia	French Polynesia (French Republic)	N/A
+Africa	Eastern Africa	French Southern and Antarctic Territories	N/A
+Africa	Middle Africa	Gabon	N/A
+Africa	Western Africa	The Gambia	N/A
+Asia	Western Asia	Georgia	N/A
+Europe	Western Europe	Germany	N/A
+Africa	Western Africa	Ghana	N/A
+Europe	Southern Europe	Gibraltar	N/A
+Europe	Southern Europe	Greece	N/A
+Americas	Northern America	Greenland	N/A
+Americas	Caribbean	Grenada	N/A
+Americas	Caribbean	Guadeloupe	N/A
+Oceania	Micronesia	Guam	N/A
+Americas	Central America	Guatemala	N/A
+Europe	Northern Europe	Guernsey	N/A
+Africa	Western Africa	Guinea	N/A
+Africa	Western Africa	Guinea-Bissau	N/A
+Americas	South America	Guyana	N/A
+Americas	Caribbean	Haiti	N/A
+Oceania	Australia and New Zealand	Heard Island and McDonald Islands	N/A
+Americas	Central America	Honduras	N/A
+Asia	Eastern Asia	Hong Kong	N/A
+Europe	Eastern Europe	Hungary	N/A
+Europe	Northern Europe	Iceland	N/A
+Asia	Southern Asia	India	N/A
+Asia	South-eastern Asia	Indonesia	N/A
+Asia	Southern Asia	Iran	N/A
+Asia	Western Asia	Iraq	N/A
+Europe	Northern Europe	Ireland	N/A
+Europe	Northern Europe	Isle of Man	N/A
+Asia	Western Asia	Israel	N/A
+Europe	Southern Europe	Italy	N/A
+Americas	Caribbean	Jamaica	N/A
+Asia	Eastern Asia	Japan	N/A
+Europe	Northern Europe	Jersey	N/A
+Asia	Western Asia	Jordan	N/A
+Asia	Central Asia	Kazakhstan	N/A
+Africa	Eastern Africa	Kenya	N/A
+Oceania	Micronesia	Kiribati	N/A
+Europe	Southern Europe	Kosovo	N/A
+Asia	Western Asia	Kuwait	N/A
+Asia	Central Asia	Kyrgyzstan	N/A
+Asia	South-eastern Asia	Laos	N/A
+Europe	Northern Europe	Latvia	N/A
+Asia	Western Asia	Lebanon	N/A
+Africa	Southern Africa	Lesotho	N/A
+Africa	Western Africa	Liberia	N/A
+Africa	Northern Africa	Libya	N/A
+Europe	Western Europe	Liechtenstein	N/A
+Europe	Northern Europe	Lithuania	N/A
+Europe	Western Europe	Luxembourg	N/A
+Asia	Eastern Asia	Macao	N/A
+Africa	Eastern Africa	Madagascar	N/A
+Africa	Eastern Africa	Malawi	N/A
+Asia	South-eastern Asia	Malaysia	N/A
+Asia	Southern Asia	Maldives	N/A
+Africa	Western Africa	Mali	N/A
+Europe	Southern Europe	Malta	N/A
+Oceania	Micronesia	Marshall Islands	N/A
+Americas	Caribbean	Martinique	N/A
+Africa	Western Africa	Mauritania	N/A
+Africa	Eastern Africa	Mauritius	N/A
+Africa	Eastern Africa	Mayotte	N/A
+Americas	Central America	Mexico	N/A
+Oceania	Micronesia	Micronesia	N/A
+Europe	Eastern Europe	Moldova	N/A
+Europe	Western Europe	Monaco	N/A
+Asia	Eastern Asia	Mongolia	N/A
+Europe	Southern Europe	Montenegro	N/A
+Americas	Caribbean	Montserrat	N/A
+Africa	Northern Africa	Morocco	N/A
+Africa	Eastern Africa	Mozambique	N/A
+Asia	South-eastern Asia	Myanmar	N/A
+Africa	Southern Africa	Namibia	N/A
+Oceania	Micronesia	Nauru	N/A
+Asia	Southern Asia	Nepal	N/A
+Europe	Western Europe	Netherlands	N/A
+Oceania	Melanesia	New Caledonia	N/A
+Oceania	Australia and New Zealand	New Zealand	N/A
+Americas	Central America	Nicaragua	N/A
+Africa	Western Africa	Niger	N/A
+Africa	Western Africa	Nigeria	N/A
+Oceania	Polynesia	Niue	N/A
+Oceania	Australia and New Zealand	Norfolk Island	N/A
+Asia	Eastern Asia	North Korea	N/A
+Europe	Southern Europe	North Macedonia	N/A
+Oceania	Micronesia	Northern Mariana Islands	N/A
+Europe	Northern Europe	Norway	N/A
+Asia	Western Asia	Oman	N/A
+Asia	Southern Asia	Pakistan	N/A
+Oceania	Micronesia	Palau	N/A
+Americas	Central America	Panama	N/A
+Oceania	Melanesia	Papua New Guinea	N/A
+Americas	South America	Paraguay	N/A
+Americas	South America	Peru	N/A
+Asia	South-eastern Asia	Philippines	N/A
+Oceania	Polynesia	Pitcairn	N/A
+Europe	Eastern Europe	Poland	N/A
+Europe	Southern Europe	Portugal	N/A
+Americas	Caribbean	Puerto Rico	N/A
+Asia	Western Asia	Qatar	N/A
+Antarctica	Antarctica	Queen Maud Land	N/A
+Asia	Eastern Asia	Republic of Korea	N/A
+Africa	Eastern Africa	Reunion	N/A
+Europe	Eastern Europe	Romania	N/A
+Europe	Eastern Europe	Russia	N/A
+Africa	Eastern Africa	Rwanda	N/A
+Americas	Caribbean	Saint Barthélemy (French Republic)	N/A
+Africa	Western Africa	Saint Helena, Ascension and Tristan da Cunha	N/A
+Americas	Caribbean	Saint Kitts and Nevis	N/A
+Americas	Caribbean	Saint Lucia	N/A
+Americas	Caribbean	Saint Martin (French Republic)	N/A
+Americas	Northern America	Saint Pierre and Miquelon (French Republic)	N/A
+Americas	Caribbean	Saint Vincent and the Grenadines	N/A
+Oceania	Polynesia	Samoa	N/A
+Europe	Southern Europe	San Marino	N/A
+Africa	Middle Africa	São Tomé and Príncipe	N/A
+Europe	Northern Europe	Sark	N/A
+Asia	Western Asia	Saudi Arabia	N/A
+Africa	Western Africa	Senegal	N/A
+Europe	Southern Europe	Serbia	N/A
+Africa	Eastern Africa	Seychelles	N/A
+Africa	Western Africa	Sierra Leone	N/A
+Asia	South-eastern Asia	Singapore	N/A
+Americas	Caribbean	Sint Maarten	N/A
+Europe	Eastern Europe	Slovakia	N/A
+Europe	Southern Europe	Slovenia	N/A
+Oceania	Melanesia	Solomon Islands	N/A
+Africa	Eastern Africa	Somalia	N/A
+Africa	Southern Africa	South Africa	N/A
+Americas	South America	South Georgia and the South Sandwich Islands	N/A
+Africa	Eastern Africa	South Sudan	N/A
+Europe	Southern Europe	Spain	N/A
+Asia	Southern Asia	Sri Lanka	N/A
+Africa	Northern Africa	Sudan	N/A
+Americas	South America	Suriname	N/A
+Europe	Northern Europe	Svalbard and Jan Mayen Islands	N/A
+Europe	Northern Europe	Sweden	N/A
+Europe	Western Europe	Switzerland	N/A
+Asia	Western Asia	Syria	N/A
+Asia	Eastern Asia	Taiwan	N/A
+Asia	Central Asia	Tajikistan	N/A
+Africa	Eastern Africa	Tanzania	N/A
+Asia	South-eastern Asia	Thailand	N/A
+Asia	South-eastern Asia	Timor-Leste	N/A
+Africa	Western Africa	Togo	N/A
+Oceania	Polynesia	Tokelau	N/A
+Oceania	Polynesia	Tonga	N/A
+Americas	Caribbean	Trinidad and Tobago	N/A
+Africa	Northern Africa	Tunisia	N/A
+Asia	Western Asia	Türkiye	N/A
+Asia	Central Asia	Turkmenistan	N/A
+Americas	Caribbean	Turks and Caicos Islands	N/A
+Oceania	Polynesia	Tuvalu	N/A
+Africa	Eastern Africa	Uganda	N/A
+Europe	Eastern Europe	Ukraine	N/A
+Asia	Western Asia	United Arab Emirates	N/A
+Europe	Northern Europe	United Kingdom	N/A
+Americas	Northern America	United States	N/A
+Oceania	Micronesia	United States Minor Outlying Islands	N/A
+Americas	South America	Uruguay	N/A
+Americas	Caribbean	US Virgin Islands	N/A
+Asia	Central Asia	Uzbekistan	N/A
+Oceania	Melanesia	Vanuatu	N/A
+Europe	Southern Europe	Vatican City State	N/A
+Americas	South America	Venezuela	N/A
+Asia	South-eastern Asia	Vietnam	N/A
+Oceania	Polynesia	Wallis and Futuna (French Republic)	N/A
+Asia	Western Asia	West Bank and Gaza	N/A
+Africa	Northern Africa	Western Sahara	N/A
+Asia	Western Asia	Yemen	N/A
+Africa	Eastern Africa	Zambia	N/A
+Africa	Eastern Africa	Zimbabwe	N/A

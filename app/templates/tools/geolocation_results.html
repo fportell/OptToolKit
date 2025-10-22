@@ -13,284 +13,182 @@
                     Geolocation Results
                 </h2>
                 <p class="text-muted mb-0">
-                    GPS coordinates extracted from {{ results.stats.total_images }} image(s)
+                    Area attribution and affected locations for {{ selected_countries|length }} country/countries
                 </p>
             </div>
-            <div>
-                <a href="{{ url_for('geolocation.index') }}" class="btn btn-primary me-2">
-                    <i class="bi bi-arrow-clockwise"></i> Process More Images
-                </a>
-                <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Tools
-                </a>
-            </div>
+            <a href="{{ url_for('geolocation.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> New Selection
+            </a>
         </div>
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card border-primary">
-                    <div class="card-body text-center">
-                        <i class="bi bi-images text-primary" style="font-size: 2rem;"></i>
-                        <h3 class="mt-2 mb-0">{{ results.stats.total_images }}</h3>
-                        <p class="text-muted mb-0">Total Images</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-success">
-                    <div class="card-body text-center">
-                        <i class="bi bi-geo-alt text-success" style="font-size: 2rem;"></i>
-                        <h3 class="mt-2 mb-0">{{ results.stats.images_with_gps }}</h3>
-                        <p class="text-muted mb-0">With GPS Data</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-info">
-                    <div class="card-body text-center">
-                        <i class="bi bi-info-circle text-info" style="font-size: 2rem;"></i>
-                        <h3 class="mt-2 mb-0">{{ results.stats.images_with_exif }}</h3>
-                        <p class="text-muted mb-0">With EXIF Data</p>
-                    </div>
-                </div>
-            </div>
+        <!-- Success Alert -->
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Successfully processed <strong>{{ selected_countries|length }}</strong> country/countries.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <!-- Interactive Map -->
-        {% if results.map_html %}
+        <!-- Reporting Information Card -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-map"></i> Interactive Map
-                    </h5>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-light btn-sm" onclick="expandMap()">
-                            <i class="bi bi-arrows-fullscreen"></i> Fullscreen
-                        </button>
+                <h5 class="mb-0">
+                    <i class="bi bi-clipboard-data"></i> Reporting Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Area Attribution -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted mb-2">
+                        <i class="bi bi-pin-map-fill text-primary me-2"></i>Report As:
+                    </h6>
+                    <div class="alert alert-primary" role="alert">
+                        <h4 class="mb-0">{{ area_attribution }}</h4>
                     </div>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This is the recommended area attribution for reporting purposes based on UN M49 standards.
+                    </small>
                 </div>
-            </div>
-            <div class="card-body p-0">
-                <div id="map-container" style="min-height: 600px;">
-                    {{ results.map_html|safe }}
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="alert alert-warning" role="alert">
-            <i class="bi bi-exclamation-triangle"></i>
-            <strong>No Map Generated:</strong> None of the uploaded images contain GPS coordinates.
-        </div>
-        {% endif %}
 
-        <!-- EXIF Data Table -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-success text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-table"></i> EXIF Data Details
-                    </h5>
-                    {% if results.stats.images_with_gps > 0 %}
-                    <a href="{{ url_for('geolocation.get_coordinates', result_id=result_id) }}"
-                       class="btn btn-light btn-sm"
-                       download="coordinates.json">
-                        <i class="bi bi-download"></i> Export JSON
-                    </a>
-                    {% endif %}
+                <hr>
+
+                <!-- Affected Locations -->
+                <div class="mb-3">
+                    <h6 class="fw-bold text-muted mb-2">
+                        <i class="bi bi-list-ul text-success me-2"></i>Affected Locations:
+                    </h6>
+                    <div class="alert alert-success" role="alert">
+                        <p class="mb-0" style="font-size: 1.1rem;">{{ affected_locations }}</p>
+                    </div>
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        This is the formatted list of countries for inclusion in reports.
+                    </small>
+                </div>
+
+                <!-- Copy Buttons -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-primary" onclick="copyToClipboard('{{ area_attribution }}', 'Area Attribution')">
+                        <i class="bi bi-clipboard"></i> Copy "Report As"
+                    </button>
+                    <button class="btn btn-outline-success" onclick="copyToClipboard('{{ affected_locations }}', 'Affected Locations')">
+                        <i class="bi bi-clipboard"></i> Copy "Affected Locations"
+                    </button>
                 </div>
             </div>
-            <div class="card-body p-0">
+        </div>
+
+        <!-- Selected Countries Details -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-table"></i> Selected Countries Details
+                </h5>
+            </div>
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
                             <tr>
-                                <th>Image</th>
-                                <th>Status</th>
-                                <th>GPS Coordinates</th>
-                                <th>Altitude</th>
-                                <th>Date/Time</th>
-                                <th>Camera</th>
-                                <th>Size</th>
+                                <th>Country</th>
+                                <th>Region</th>
+                                <th>Continent</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for data in results.exif_data %}
+                            {% for country in country_data %}
                             <tr>
-                                <!-- Filename -->
+                                <td><strong>{{ country.COUNTRY }}</strong></td>
+                                <td>{{ country.REGION }}</td>
                                 <td>
-                                    <i class="bi bi-file-image text-primary"></i>
-                                    <strong>{{ data.filename }}</strong>
-                                </td>
-
-                                <!-- Status -->
-                                <td>
-                                    {% if data.has_gps %}
-                                        <span class="badge bg-success">
-                                            <i class="bi bi-check-circle"></i> GPS Found
-                                        </span>
-                                    {% elif data.has_exif %}
-                                        <span class="badge bg-warning">
-                                            <i class="bi bi-exclamation-circle"></i> No GPS
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">
-                                            <i class="bi bi-x-circle"></i> No EXIF
-                                        </span>
-                                    {% endif %}
-                                </td>
-
-                                <!-- Coordinates -->
-                                <td>
-                                    {% if data.latitude and data.longitude %}
-                                        <div class="coordinate-cell">
-                                            <div class="mb-1">
-                                                <small class="text-muted d-block">Decimal:</small>
-                                                <code>{{ "%.6f"|format(data.latitude) }}, {{ "%.6f"|format(data.longitude) }}</code>
-                                                <button class="btn btn-sm btn-outline-secondary ms-1"
-                                                        onclick="copyToClipboard('{{ data.latitude }}, {{ data.longitude }}')"
-                                                        title="Copy coordinates">
-                                                    <i class="bi bi-clipboard"></i>
-                                                </button>
-                                            </div>
-                                            <a href="https://www.google.com/maps?q={{ data.latitude }},{{ data.longitude }}"
-                                               target="_blank"
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-map"></i> View in Google Maps
-                                            </a>
-                                        </div>
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
-                                </td>
-
-                                <!-- Altitude -->
-                                <td>
-                                    {% if data.altitude %}
-                                        {{ "%.1f"|format(data.altitude) }} m
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
-                                </td>
-
-                                <!-- Date/Time -->
-                                <td>
-                                    {% if data.datetime %}
-                                        <small>{{ data.datetime[:19].replace('T', ' ') }}</small>
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
-                                </td>
-
-                                <!-- Camera -->
-                                <td>
-                                    {% if data.camera_make or data.camera_model %}
-                                        <small>
-                                            {{ data.camera_make or '' }}
-                                            {{ data.camera_model or '' }}
-                                        </small>
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
-                                </td>
-
-                                <!-- Image Size -->
-                                <td>
-                                    {% if data.image_width and data.image_height %}
-                                        <small>{{ data.image_width }} × {{ data.image_height }}</small>
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
+                                    <span class="badge bg-info">{{ country.CONTINENT }}</span>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Summary Stats -->
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Summary Statistics:</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-globe text-primary" style="font-size: 2rem;"></i>
+                                    <h3 class="mt-2">{{ selected_countries|length }}</h3>
+                                    <p class="text-muted mb-0">Countries</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-map text-success" style="font-size: 2rem;"></i>
+                                    <h3 class="mt-2">{{ country_data|map(attribute='REGION')|unique|list|length }}</h3>
+                                    <p class="text-muted mb-0">Regions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-pin-map text-info" style="font-size: 2rem;"></i>
+                                    <h3 class="mt-2">{{ country_data|map(attribute='CONTINENT')|unique|list|length }}</h3>
+                                    <p class="text-muted mb-0">Continents</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Error Messages -->
-        {% if results.stats.images_with_gps == 0 %}
-        <div class="alert alert-info mt-4" role="alert">
-            <h5 class="alert-heading">
-                <i class="bi bi-lightbulb"></i> Tips for Getting GPS Data
-            </h5>
-            <ul class="mb-0">
-                <li>Ensure your camera or phone has GPS enabled when taking photos</li>
-                <li>Some image editing software may strip EXIF data when saving</li>
-                <li>Screenshots and edited images typically don't contain GPS data</li>
-                <li>Try uploading photos taken with a smartphone camera</li>
-            </ul>
+        <!-- Actions -->
+        <div class="d-grid gap-2 mt-4">
+            <a href="{{ url_for('geolocation.index') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-arrow-repeat"></i> Make Another Selection
+            </a>
+            <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Tools
+            </a>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Copy coordinates to clipboard
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            OpsToolKit.showNotification('Coordinates copied to clipboard!', 'success', 2000);
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            OpsToolKit.showNotification('Failed to copy coordinates', 'danger', 3000);
-        });
-    }
+// Copy to clipboard function
+function copyToClipboard(text, label) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed bottom-0 end-0 p-3';
+        toast.style.zIndex = '11';
+        toast.innerHTML = `
+            <div class="toast show" role="alert">
+                <div class="toast-header bg-success text-white">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong class="me-auto">Copied!</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    ${label} copied to clipboard
+                </div>
+            </div>
+        `;
+        document.body.appendChild(toast);
 
-    // Expand map to fullscreen
-    function expandMap() {
-        const mapContainer = document.getElementById('map-container');
-        if (mapContainer.requestFullscreen) {
-            mapContainer.requestFullscreen();
-        } else if (mapContainer.mozRequestFullScreen) {
-            mapContainer.mozRequestFullScreen();
-        } else if (mapContainer.webkitRequestFullscreen) {
-            mapContainer.webkitRequestFullscreen();
-        } else if (mapContainer.msRequestFullscreen) {
-            mapContainer.msRequestFullscreen();
-        }
-    }
-
-    // Auto-scroll to map if GPS data found
-    {% if results.map_html and results.stats.images_with_gps > 0 %}
-    window.addEventListener('load', function() {
-        const mapContainer = document.getElementById('map-container');
-        if (mapContainer) {
-            mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }).catch(function(err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy to clipboard');
     });
-    {% endif %}
+}
 </script>
-
-<style>
-    .coordinate-cell {
-        min-width: 300px;
-    }
-
-    #map-container iframe {
-        width: 100%;
-        height: 600px;
-        border: none;
-    }
-
-    #map-container:-webkit-full-screen iframe {
-        height: 100vh;
-    }
-
-    #map-container:-moz-full-screen iframe {
-        height: 100vh;
-    }
-
-    #map-container:-ms-fullscreen iframe {
-        height: 100vh;
-    }
-
-    #map-container:fullscreen iframe {
-        height: 100vh;
-    }
-</style>
 {% endblock %}
