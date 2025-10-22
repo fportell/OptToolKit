@@ -78,7 +78,13 @@ def setup_logging(app: Flask) -> None:
 
 def init_extensions(app: Flask) -> None:
     """Initialize Flask extensions."""
-    Session(app)
+    # Only initialize Flask-Session if not using default cookie-based sessions
+    if app.config.get('SESSION_TYPE') and app.config['SESSION_TYPE'] != 'null':
+        Session(app)
+        app.logger.info(f"Flask-Session initialized with SESSION_TYPE={app.config['SESSION_TYPE']}")
+    else:
+        app.logger.info("Using Flask's default cookie-based sessions (SESSION_TYPE=null)")
+
     from app import auth
     auth.init_app(app)
 
