@@ -95,7 +95,7 @@
                                     name="countries"
                                     value="{{ country }}"
                                     id="country-{{ loop.index }}"
-                                    {% if country in pre_selected %}checked{% endif %}
+                                    {% if pre_selected and country in pre_selected %}checked{% endif %}
                                 >
                                 <label class="form-check-label" for="country-{{ loop.index }}">
                                     {{ country }}
@@ -160,6 +160,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkboxItems = document.querySelectorAll('.country-checkbox-item');
     const checkboxes = document.querySelectorAll('.country-checkbox');
     const totalCountries = checkboxItems.length;
+
+    // Debug: Log pre-selected countries
+    const preSelected = {{ pre_selected|tojson }};
+    console.log('Pre-selected countries:', preSelected);
+
+    // Debug: Count checked checkboxes on load
+    const checkedOnLoad = Array.from(checkboxes).filter(cb => cb.checked).length;
+    console.log('Checkboxes checked on page load:', checkedOnLoad);
 
     // Update selection count and button state
     function updateSelectionCount() {
@@ -236,12 +244,18 @@ document.addEventListener('DOMContentLoaded', function() {
         checkbox.addEventListener('change', updateSelectionCount);
     });
 
-    // Only reset checkboxes if there are no pre-selected items (prevent browser caching)
+    // Only reset checkboxes if we're NOT in update mode (prevent browser caching for new selections)
     const hasPreSelected = Array.from(checkboxes).some(cb => cb.checked);
-    if (!hasPreSelected) {
+    console.log('Has pre-selected items:', hasPreSelected);
+
+    if (!hasPreSelected && preSelected.length === 0) {
+        // Only clear if truly no pre-selection (fresh page load)
+        console.log('Clearing all checkboxes (fresh load)');
         checkboxes.forEach(checkbox => {
             checkbox.checked = false;
         });
+    } else {
+        console.log('Preserving pre-selected checkboxes');
     }
 
     // Auto-focus search input

@@ -46,12 +46,14 @@ def index():
         pre_selected = []
         if selected_param:
             pre_selected = [c.strip() for c in selected_param.split('|') if c.strip()]
-            logger.info(f"Pre-selecting {len(pre_selected)} countries")
+            logger.info(f"Pre-selecting {len(pre_selected)} countries: {pre_selected}")
+        else:
+            logger.info("No pre-selected countries")
 
         return render_template(
             'tools/geolocation.html',
             countries=all_countries,
-            pre_selected=pre_selected
+            pre_selected=pre_selected if pre_selected else []
         )
 
     except Exception as e:
