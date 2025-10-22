@@ -29,6 +29,9 @@ def index():
     """
     Display geolocation tool country selection interface.
 
+    Query Parameters:
+        selected (str): Pipe-separated list of pre-selected countries
+
     Returns:
         Rendered geolocation tool template
     """
@@ -38,9 +41,17 @@ def index():
         service = get_geolocation_service()
         all_countries = service.get_all_countries()
 
+        # Get pre-selected countries from query parameter
+        selected_param = request.args.get('selected', '')
+        pre_selected = []
+        if selected_param:
+            pre_selected = [c.strip() for c in selected_param.split('|') if c.strip()]
+            logger.info(f"Pre-selecting {len(pre_selected)} countries")
+
         return render_template(
             'tools/geolocation.html',
-            countries=all_countries
+            countries=all_countries,
+            pre_selected=pre_selected
         )
 
     except Exception as e:

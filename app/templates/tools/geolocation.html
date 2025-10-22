@@ -22,12 +22,20 @@
         </div>
 
         <!-- Info Alert -->
+        {% if pre_selected %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-pencil-square me-2"></i>
+            <strong>Update Mode:</strong> You can add or remove countries from your previous selection below, then click "Locate & Generate Report" to see updated results.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% else %}
         <div class="alert alert-info alert-dismissible fade show" role="alert">
             <i class="bi bi-info-circle-fill me-2"></i>
             <strong>About this tool:</strong> Select one or more countries to generate standardized reporting language.
             The tool uses UN M49 regional standards to determine appropriate area attribution.
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+        {% endif %}
 
         <!-- Main Content Card -->
         <div class="card shadow-sm">
@@ -87,6 +95,7 @@
                                     name="countries"
                                     value="{{ country }}"
                                     id="country-{{ loop.index }}"
+                                    {% if country in pre_selected %}checked{% endif %}
                                 >
                                 <label class="form-check-label" for="country-{{ loop.index }}">
                                     {{ country }}
@@ -227,10 +236,13 @@ document.addEventListener('DOMContentLoaded', function() {
         checkbox.addEventListener('change', updateSelectionCount);
     });
 
-    // Ensure all checkboxes are unchecked on page load (prevent browser caching)
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = false;
-    });
+    // Only reset checkboxes if there are no pre-selected items (prevent browser caching)
+    const hasPreSelected = Array.from(checkboxes).some(cb => cb.checked);
+    if (!hasPreSelected) {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
 
     // Auto-focus search input
     searchInput.focus();
