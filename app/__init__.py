@@ -90,13 +90,15 @@ def register_blueprints(app: Flask) -> None:
     from app.routes.tools.summary_revision import summary_revision_bp
     from app.routes.tools.dr_tracker import dr_tracker_bp
     from app.routes.tools.chatbot import chatbot_bp
+    from app.routes.tools.rss_manager import rss_manager_bp
 
     app.register_blueprint(landing_bp)
     app.register_blueprint(geolocation_bp)
     app.register_blueprint(summary_revision_bp)
     app.register_blueprint(dr_tracker_bp)
     app.register_blueprint(chatbot_bp)
-    app.logger.info("Blueprints registered: landing, geolocation, summary_revision, dr_tracker, chatbot")
+    app.register_blueprint(rss_manager_bp)
+    app.logger.info("Blueprints registered: landing, geolocation, summary_revision, dr_tracker, chatbot, rss_manager")
 
 
 def register_error_handlers(app: Flask) -> None:
