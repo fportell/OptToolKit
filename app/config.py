@@ -26,14 +26,20 @@ class Config:
     # =========================================================================
     # Session Management (per FR-003, clarifications)
     # =========================================================================
-    SESSION_TYPE = os.getenv('SESSION_TYPE', 'filesystem')  # or 'redis'
+    SESSION_TYPE = os.getenv('SESSION_TYPE', 'null')  # Use 'null' for cookie-based sessions
     SESSION_PERMANENT = True
     SESSION_USE_SIGNER = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
     # Session timeouts (in seconds)
     # Per clarification: 4 hours of activity OR 30 minutes of inactivity
     SESSION_ACTIVITY_TIMEOUT = int(os.getenv('SESSION_ACTIVITY_TIMEOUT', '14400'))  # 4 hours
     SESSION_INACTIVITY_TIMEOUT = int(os.getenv('SESSION_INACTIVITY_TIMEOUT', '1800'))  # 30 minutes
+
+    # For filesystem session storage (if SESSION_TYPE='filesystem')
+    SESSION_FILE_DIR = BASE_DIR / 'instance' / 'flask_session'
+    SESSION_FILE_THRESHOLD = 500
 
     # For Redis session storage (if SESSION_TYPE='redis')
     SESSION_REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
