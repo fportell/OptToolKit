@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Revision Results - OpsToolKit{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-file-text text-success"></i>
+                    Revision Results
+                </h2>
+                <p class="text-muted mb-0">
+                    {% if results.status == 'completed' and results.revision_result.success %}
+                        Text revision completed
+                    {% elif results.status == 'processing' %}
+                        Processing your revision...
+                    {% else %}
+                        Revision encountered an error
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('summary_revision.index') }}" class="btn btn-success me-2">
+                    <i class="bi bi-arrow-clockwise"></i> Revise More Text
+                </a>
+                <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Tools
+                </a>
+            </div>
+        </div>
+
+        <!-- Processing Status -->
+        {% if results.status == 'processing' %}
+        <div class="alert alert-info" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div>
+                    <strong>Processing...</strong>
+                    Your revision request is being processed by AI. This page will automatically refresh when complete.
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Auto-refresh until processing is complete
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        </script>
+        {% endif %}
+
+        <!-- Error Display -->
+        {% if results.status == 'completed' and not results.revision_result.success %}
+        <div class="alert alert-danger" role="alert">
+            <h5 class="alert-heading">
+                <i class="bi bi-x-circle"></i> Revision Failed
+            </h5>
+            <p class="mb-0">
+                {{ results.revision_result.error }}
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Success Results -->
+        {% if results.status == 'completed' and results.revision_result.success %}
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <i class="bi bi-type text-primary" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0">
+                            {{ results.comparison.original_words }} → {{ results.comparison.revised_words }}
+                        </h5>
+                        <p class="text-muted mb-0 small">Words</p>
+                        {% if results.comparison.words_change != 0 %}
+                        <span class="badge bg-{{ 'success' if results.comparison.words_change < 0 else 'info' }}">
+                            {{ "%.1f"|format(results.comparison.words_change_percent) }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <i class="bi bi-text-left text-success" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0">
+                            {{ results.comparison.original_length }} → {{ results.comparison.revised_length }}
+                        </h5>
+                        <p class="text-muted mb-0 small">Characters</p>
+                        {% if results.comparison.length_change != 0 %}
+                        <span class="badge bg-{{ 'success' if results.comparison.length_change < 0 else 'info' }}">
+                            {{ "%.1f"|format(results.comparison.length_change_percent) }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <i class="bi bi-robot text-warning" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0">{{ results.revision_result.model }}</h5>
+                        <p class="text-muted mb-0 small">AI Model</p>
+                        <span class="badge bg-warning">
+                            {{ results.revision_result.usage.total_tokens }} tokens
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <i class="bi bi-stopwatch text-info" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0">{{ "%.1f"|format(results.revision_result.processing_time) }}s</h5>
+                        <p class="text-muted mb-0 small">Processing Time</p>
+                        <span class="badge bg-info">
+                            {{ revision_types[results.options.revision_type].name }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Improvement Suggestions -->
+        {% if results.suggestions %}
+        <div class="card mb-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightbulb"></i> Improvement Suggestions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for suggestion in results.suggestions %}
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <span class="badge bg-warning text-dark me-2">{{ suggestion.category }}</span>
+                            <p class="mb-0">{{ suggestion.suggestion }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Side-by-Side Comparison -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-columns-gap"></i> Text Comparison
+                    </h5>
+                    <a href="{{ url_for('summary_revision.download_revised', result_id=result_id) }}"
+                       class="btn btn-light btn-sm">
+                        <i class="bi bi-download"></i> Download Revised Text
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- Original Text -->
+                    <div class="col-md-6 border-end">
+                        <div class="p-3 bg-light border-bottom">
+                            <h6 class="mb-0 text-muted">
+                                <i class="bi bi-file-earmark"></i> Original Text
+                            </h6>
+                        </div>
+                        <div class="p-3" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                            <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem;">{{ results.revision_result.original_text }}</pre>
+                        </div>
+                    </div>
+
+                    <!-- Revised Text -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-success text-white border-bottom">
+                            <h6 class="mb-0">
+                                <i class="bi bi-file-earmark-check"></i> Revised Text
+                            </h6>
+                        </div>
+                        <div class="p-3" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
+                            <div class="position-relative">
+                                <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem;" id="revised-text">{{ results.revision_result.revised_text }}</pre>
+                                <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0"
+                                        onclick="copyRevisedText()"
+                                        title="Copy to clipboard">
+                                    <i class="bi bi-clipboard"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revision Details -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Revision Details
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong>Revision Type:</strong>
+                            <span class="badge bg-success">
+                                {{ revision_types[results.options.revision_type].name }}
+                            </span>
+                        </p>
+                        <p class="mb-2">
+                            <strong>Description:</strong>
+                            {{ revision_types[results.options.revision_type].description }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        {% if results.options.custom_instructions %}
+                        <p class="mb-2">
+                            <strong>Custom Instructions:</strong>
+                            <code>{{ results.options.custom_instructions }}</code>
+                        </p>
+                        {% endif %}
+                        <p class="mb-2">
+                            <strong>API Usage:</strong>
+                            Prompt: {{ results.revision_result.usage.prompt_tokens }} tokens |
+                            Completion: {{ results.revision_result.usage.completion_tokens }} tokens
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Copy revised text to clipboard
+    function copyRevisedText() {
+        const revisedText = document.getElementById('revised-text').textContent;
+        navigator.clipboard.writeText(revisedText).then(() => {
+            OpsToolKit.showNotification('Revised text copied to clipboard!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            OpsToolKit.showNotification('Failed to copy text', 'danger', 3000);
+        });
+    }
+
+    // Synchronized scrolling
+    (function() {
+        const originalDiv = document.querySelector('.col-md-6:first-child > div:last-child');
+        const revisedDiv = document.querySelector('.col-md-6:last-child > div:last-child');
+
+        if (originalDiv && revisedDiv) {
+            let isSyncing = false;
+
+            originalDiv.addEventListener('scroll', function() {
+                if (!isSyncing) {
+                    isSyncing = true;
+                    revisedDiv.scrollTop = this.scrollTop;
+                    setTimeout(() => isSyncing = false, 50);
+                }
+            });
+
+            revisedDiv.addEventListener('scroll', function() {
+                if (!isSyncing) {
+                    isSyncing = true;
+                    originalDiv.scrollTop = this.scrollTop;
+                    setTimeout(() => isSyncing = false, 50);
+                }
+            });
+        }
+    })();
+</script>
+
+<style>
+    /* Better scrollbar styling */
+    .col-md-6 > div:last-child {
+        scrollbar-width: thin;
+        scrollbar-color: #6c757d #f8f9fa;
+    }
+
+    .col-md-6 > div:last-child::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .col-md-6 > div:last-child::-webkit-scrollbar-track {
+        background: #f8f9fa;
+    }
+
+    .col-md-6 > div:last-child::-webkit-scrollbar-thumb {
+        background: #6c757d;
+        border-radius: 4px;
+    }
+
+    .col-md-6 > div:last-child::-webkit-scrollbar-thumb:hover {
+        background: #495057;
+    }
+</style>
+{% endblock %}
