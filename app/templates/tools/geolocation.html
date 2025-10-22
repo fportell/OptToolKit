@@ -33,61 +33,76 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <form method="POST" action="{{ url_for('geolocation.process') }}" id="geolocationForm">
-                    <!-- Country Selection -->
-                    <div class="mb-4">
-                        <label for="countrySelect" class="form-label fw-bold">
-                            <i class="bi bi-globe me-2"></i>Select Countries
-                        </label>
-                        <select
-                            class="form-select"
-                            id="countrySelect"
-                            name="countries"
-                            multiple
-                            size="15"
-                            required
-                            style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px;"
-                        >
-                            {% for country in countries %}
-                            <option value="{{ country }}">{{ country }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="form-text">
-                            <i class="bi bi-lightbulb me-1"></i>
-                            Hold Ctrl (Windows/Linux) or Cmd (Mac) to select multiple countries.
-                            <span class="text-primary fw-bold" id="selectionCount">0 selected</span>
-                        </div>
-                    </div>
 
-                    <!-- Search Filter -->
-                    <div class="mb-4">
-                        <label for="searchCountry" class="form-label">
+                    <!-- Search Filter (moved to top for better UX) -->
+                    <div class="mb-3">
+                        <label for="searchCountry" class="form-label fw-bold">
                             <i class="bi bi-search me-2"></i>Search Countries
                         </label>
                         <input
                             type="text"
-                            class="form-control"
+                            class="form-control form-control-lg"
                             id="searchCountry"
                             placeholder="Type to filter countries..."
                             autocomplete="off"
                         >
+                        <div class="form-text">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Start typing to quickly find countries.
+                            <span class="fw-bold" id="matchCount">{{ countries|length }} countries</span>
+                        </div>
                     </div>
 
-                    <!-- Quick Select Buttons -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Quick Actions</label>
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="selectAll">
-                                <i class="bi bi-check-all"></i> Select All
+                    <!-- Selection Summary -->
+                    <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3">
+                        <span>
+                            <i class="bi bi-check2-square text-primary me-2"></i>
+                            <strong id="selectionCount">0 countries selected</strong>
+                        </span>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary" id="selectAllVisible">
+                                <i class="bi bi-check-all"></i> Select All Visible
                             </button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="clearAll">
+                            <button type="button" class="btn btn-outline-secondary" id="clearAll">
                                 <i class="bi bi-x-circle"></i> Clear All
                             </button>
                         </div>
                     </div>
 
+                    <!-- Country Checkboxes -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-globe me-2"></i>Select Countries
+                        </label>
+                        <div
+                            id="countryCheckboxes"
+                            class="border rounded p-3 bg-light"
+                            style="max-height: 400px; overflow-y: auto;"
+                        >
+                            {% for country in countries %}
+                            <div class="form-check country-checkbox-item" data-country="{{ country|lower }}">
+                                <input
+                                    class="form-check-input country-checkbox"
+                                    type="checkbox"
+                                    name="countries"
+                                    value="{{ country }}"
+                                    id="country-{{ loop.index }}"
+                                >
+                                <label class="form-check-label" for="country-{{ loop.index }}">
+                                    {{ country }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div id="noResults" class="text-center text-muted mt-3" style="display: none;">
+                            <i class="bi bi-search"></i>
+                            <p>No countries found matching your search.</p>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
                             <i class="bi bi-geo-fill me-2"></i>
                             Locate & Generate Report
                         </button>
@@ -126,54 +141,158 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const selectElement = document.getElementById('countrySelect');
     const searchInput = document.getElementById('searchCountry');
     const countDisplay = document.getElementById('selectionCount');
-    const selectAllBtn = document.getElementById('selectAll');
+    const matchCountDisplay = document.getElementById('matchCount');
+    const selectAllVisibleBtn = document.getElementById('selectAllVisible');
     const clearAllBtn = document.getElementById('clearAll');
-    const allOptions = Array.from(selectElement.options);
+    const submitBtn = document.getElementById('submitBtn');
+    const noResults = document.getElementById('noResults');
+    const checkboxItems = document.querySelectorAll('.country-checkbox-item');
+    const checkboxes = document.querySelectorAll('.country-checkbox');
+    const totalCountries = checkboxItems.length;
 
-    // Update selection count
-    function updateCount() {
-        const count = Array.from(selectElement.selectedOptions).length;
-        countDisplay.textContent = `${count} selected`;
-        countDisplay.className = count > 0 ? 'text-success fw-bold' : 'text-primary fw-bold';
+    // Update selection count and button state
+    function updateSelectionCount() {
+        const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        countDisplay.textContent = `${checkedCount} ${checkedCount === 1 ? 'country' : 'countries'} selected`;
+
+        // Enable/disable submit button
+        submitBtn.disabled = checkedCount === 0;
+
+        // Update color
+        if (checkedCount > 0) {
+            countDisplay.parentElement.classList.remove('alert-light');
+            countDisplay.parentElement.classList.add('alert-success');
+        } else {
+            countDisplay.parentElement.classList.remove('alert-success');
+            countDisplay.parentElement.classList.add('alert-light');
+        }
     }
 
-    // Search filter
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
+    // Update match count for visible items
+    function updateMatchCount() {
+        const visibleCount = Array.from(checkboxItems).filter(item =>
+            item.style.display !== 'none'
+        ).length;
 
-        allOptions.forEach(option => {
-            const text = option.textContent.toLowerCase();
-            const matches = text.includes(searchTerm);
-            option.style.display = matches ? '' : 'none';
-        });
+        matchCountDisplay.textContent = `${visibleCount} ${visibleCount === 1 ? 'country' : 'countries'}`;
+
+        // Show/hide no results message
+        if (visibleCount === 0 && searchInput.value.trim() !== '') {
+            noResults.style.display = 'block';
+        } else {
+            noResults.style.display = 'none';
+        }
+    }
+
+    // Search filter with debouncing for better performance
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchTerm = this.value.toLowerCase().trim();
+
+            checkboxItems.forEach(item => {
+                const countryName = item.getAttribute('data-country');
+                const matches = countryName.includes(searchTerm);
+                item.style.display = matches ? '' : 'none';
+            });
+
+            updateMatchCount();
+        }, 150); // Debounce by 150ms for smoother typing
     });
 
-    // Select all visible options
-    selectAllBtn.addEventListener('click', function() {
-        allOptions.forEach(option => {
-            if (option.style.display !== 'none') {
-                option.selected = true;
+    // Select all visible checkboxes
+    selectAllVisibleBtn.addEventListener('click', function() {
+        checkboxItems.forEach(item => {
+            if (item.style.display !== 'none') {
+                const checkbox = item.querySelector('.country-checkbox');
+                checkbox.checked = true;
             }
         });
-        updateCount();
+        updateSelectionCount();
     });
 
     // Clear all selections
     clearAllBtn.addEventListener('click', function() {
-        Array.from(selectElement.options).forEach(option => {
-            option.selected = false;
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
         });
-        updateCount();
+        updateSelectionCount();
     });
 
-    // Update count on selection change
-    selectElement.addEventListener('change', updateCount);
+    // Update count when any checkbox changes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectionCount);
+    });
 
-    // Initial count
-    updateCount();
+    // Auto-focus search input
+    searchInput.focus();
+
+    // Initial states
+    updateSelectionCount();
+    updateMatchCount();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + A to select all visible
+        if ((e.ctrlKey || e.metaKey) && e.key === 'a' && searchInput !== document.activeElement) {
+            e.preventDefault();
+            selectAllVisibleBtn.click();
+        }
+
+        // Escape to clear search
+        if (e.key === 'Escape' && searchInput === document.activeElement) {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+        }
+    });
 });
 </script>
+
+<style>
+/* Smooth scrolling for checkbox container */
+#countryCheckboxes {
+    scroll-behavior: smooth;
+}
+
+/* Highlight matching text on hover */
+.country-checkbox-item:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+    transition: background-color 0.2s;
+}
+
+/* Checked items styling */
+.country-checkbox:checked + label {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+/* Better checkbox styling */
+.form-check {
+    padding: 0.5rem;
+    margin-bottom: 0.25rem;
+    border-radius: 0.25rem;
+}
+
+/* Scrollbar styling for webkit browsers */
+#countryCheckboxes::-webkit-scrollbar {
+    width: 8px;
+}
+
+#countryCheckboxes::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#countryCheckboxes::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#countryCheckboxes::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
 {% endblock %}
