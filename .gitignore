@@ -1,0 +1,122 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Flask
+instance/
+.webassets-cache
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Logs
+logs/
+*.log
+
+# Node.js (for RSS Manager)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# AI/ML Models (large files)
+*.bin
+*.pt
+*.pth
+*.onnx
+*.h5
+*.keras
+
+# Sentence Transformers cache
+.cache/
+transformers/
+
+# Excel files (except templates)
+*.xlsx
+*.xlsm
+!app/services/chatbot/data/DR_database_PBI.xlsx
+
+# Uploaded files
+uploads/
+temp_uploads/
+
+# Deployment
+*.pid
+*.sock
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Security scanning reports
+pip-audit-report.json
+npm-audit-report.json
+
+# Documentation build artifacts
+docs/_build/
+docs/.doctrees/
+
+# Coverage reports
+.coverage.*
+coverage.xml
+*.cover
+
+# Profiling
+*.prof
