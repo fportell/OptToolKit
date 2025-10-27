@@ -1,0 +1,1371 @@
+[
+  {
+    "canonical_hazard": "Acute hepatitis A",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Acute hepatitis B",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Acute hepatitis C",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Acute hepatitis E",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Acute poliomyelitis",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": [
+                "Polio",
+                "Poliovirus Infection",
+                "Poliomyelitis"
+              ]
+              },
+              {
+                "canonical_hazard": "Wild poliovirus type 1",
+                "child": null,
+                "variant": ["WPV1"]
+              },
+              {
+                "canonical_hazard": "Wild poliovirus type 2",
+                "child": null,
+                "variant": ["WPV2"]
+              },
+              {
+                "canonical_hazard": "Wild poliovirus type 3",
+                "child": null,
+                "variant": ["WPV3"]
+              },
+              {
+                "canonical_hazard": "Circulating vaccine-derived poliovirus type 1",
+                "child": null,
+                "variant": ["cVDPV1"]
+              },
+              {
+                "canonical_hazard": "Circulating vaccine-derived poliovirus type 2",
+                "child": null,
+                "variant": ["cVDPV2"]
+              },
+              {
+                "canonical_hazard": "Circulating vaccine-derived poliovirus type 3",
+                "child": null,
+                "variant": ["cVDPV3"]
+              }
+            ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Acute viral hepatitis - unspecified",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Adenovirus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "African trypanosomiasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Alcohol",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Amoebiasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Anaplasma",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Anthrax",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Anthrax vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Acinetobacter baumannii",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Campylobacter",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Escherichia coli",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Haemophilus influenzae",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Klebsiella pneumoniae",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Mycobacterium",
+    "child": [
+              {"canonical_hazard": "Multi-drug resistant Mycobacterium tuberculosis",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Extensively drug-resistant mycobacterium tuberculosis",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Neisseria gonorrhoeae",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Pseudomonas aeruginosa",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Salmonella",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Shigella",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Staphylococcus aureus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Antibiotic resistant Vibrio",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Argentinian haemorrhagic fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Arthropathies",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Ascariasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Avalanche or landslide or other earth movements",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Babesiosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Blastomycosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Bolivian haemorrhagic fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Botulism",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Brucellosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Brucellosis vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Campylobacteriosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cannabis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cataclysmic storm",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Chagas disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Chandipura virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Chikungunya virus disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Chlamydia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cholera",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cholera vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Circulating vaccine-derived poliovirus type 1",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Circulating vaccine-derived poliovirus type 2",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Colorado tick fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "COVID-19",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "COVID-19 vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Crimean-Congo haemorrhagic fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cronobacter",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cryptosporidiosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Cyclospora",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Dengue",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": [
+                "Dengue",
+                "Dengue fever"
+              ]
+              },
+              {"canonical_hazard": "Dengue virus 1",
+              "child": null,
+              "variant": [
+                "DENV-1",
+                "DENV1",
+                "DENV-I"
+              ]
+              },
+              {"canonical_hazard": "Dengue virus 2",
+              "child": null,
+              "variant": [
+                "DENV-2",
+                "DENV3",
+                "DENV-II"
+              ]
+              },
+              {"canonical_hazard": "Dengue virus 3",
+              "child": null,
+              "variant": [
+                "DENV-3",
+                "DENV3",
+                "DENV-III"
+              ]
+              },
+              {"canonical_hazard": "Dengue virus 4",
+              "child": null,
+              "variant": [
+                "DENV-4",
+                "DENV4",
+                "DENV-IV"
+              ]
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Dengue vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Diabetes",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Diphtheria",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Diphtheria vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Drought",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Earthquake",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Eastern equine encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Ebola vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Ebola virus disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Echovirus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Effects of heat",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Effects of hunger",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Effects of thirst",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Entamoeba histolytica",
+    "child": null,
+    "variant": null
+  },
+    {
+    "canonical_hazard": "Enterovirus infection",
+    "child": [
+              {"canonical_hazard": "EV-D68",
+              "child": null,
+              "variant": null
+              }
+            ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Epstein-Barr virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Escherichia coli",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Fifth disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Finding of abnormal level of heavy metals in blood",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Flaccid tetraplegia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Flood",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Giardia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Giardia lamblia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Glomerular disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Gonorrhoea",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Guillain-Barré syndrome",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Haemophilus influenzae",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Haemophilus influenzae B vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Hand-foot-and-mouth disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Hantavirus disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Hepatitis vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Histoplasmosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "HIV",
+    "child": null,
+    "variant": [
+      "Human Immunodeficiency Virus",
+      "AIDS"
+    ]
+  },
+  {
+    "canonical_hazard": "Human metapneumovirus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Human prion diseases",
+    "child": [
+              {"canonical_hazard": "Unspecified Creutzfeldt-Jakob disease",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Other specified Creutzfeldt-Jakob disease",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Variant Creutzfeldt-Jakob Disease",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Other acquired Creutzfeldt-Jakob Disease",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Unspecified acquired prion disease",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Infectious encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Infectious meningitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Infectious myelitis - unspecified",
+    "child": null,
+    "variant": null
+  },
+    {
+    "canonical_hazard": "Influenza due to identified seasonal influenza virus",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": ["flu"]
+              },
+              {"canonical_hazard": "Influenza A H1N1 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H3N2 virus",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Influenza due to identified zoonotic or pandemic influenza virus",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H5N1 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H7N9 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Swine influenza A H1N1 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H1N2 variant",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Swine influenza A H3N2 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H5N8 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H7N3 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H7N7 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H9N2 virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Influenza A H10N8 virus",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Isospora",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Isospora belli",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Japanese encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Kawasaki disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Kyasanur Forest disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "La Crosse encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Lassa fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Legionellosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Leishmaniasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Leprosy",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Leptospirosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Listeriosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Lyme borreliosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Marburg virus disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Mayaro virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Measles",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Measles vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Melioidosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Meningococcal disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Meningococcal vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Mental or behavioural or neurodevelopmental disorders",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Middle East respiratory syndrome",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Mpox",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": [
+                "mpox",
+                "monkeypox"
+              ]
+              },
+              {"canonical_hazard": "Monkeypox virus Clade I",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Monkeypox virus Clade Ia",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Monkeypox virus Clade Ib",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Monkeypox virus Clade II",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Monkeypox virus Clade IIa",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Monkeypox virus Clade IIb",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Mumps",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Mumps vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Murray Valley encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Mycobacterium ulcerans infection",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Myiasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Naegleriasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Neoplasms",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Nicotine",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Nipah virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Norovirus",
+    "child": null,
+    "variant": null
+  },
+    {
+    "canonical_hazard": "Nosocomial",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Acinetobacter",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Burkholderia cepacia complex",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Klebsiella",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Pseudomonas aeruginosa",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Clostridioides difficile",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "BK polyoma virus",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Candida auris",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Fusarium solani",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Other specified nosocomial disease",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Opioids",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Oropouche virus disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Other specified mycobacterial diseases",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Other specified zoonotic viral diseases",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Other substances",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Pediculosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Pertussis vaccines",
+    "child": null,
+    "variant": ["whooping cough vaccine"]
+  },
+  {
+    "canonical_hazard": "Petroleum product",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Plague",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": [
+                "Plague",
+                "Yersinia pestis infection",
+                "Yersiniosis"
+              ]
+              },
+              {
+                "canonical_hazard": "Bulbonic plague",
+                "child": null,
+                "variant": null
+              },
+              {
+                "canonical_hazard": "Pneumonic plague",
+                "child": null,
+                "variant": null
+              }
+            ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Plague vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Malaria",
+    "child": [
+              {"canonical_hazard": "unspecified",
+              "child": null,
+              "variant": ["malaria"]
+              },
+              {"canonical_hazard": "Plasmodium falciparum",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Plasmodium malariae",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Plasmodium ovale",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Plasmodium vivax",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Plasmodium knowlesi",
+              "child": null,
+              "variant": null
+              },
+              {"canonical_hazard": "Plasmodium cynomolgi",
+              "child": null,
+              "variant": null
+              }
+			 ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Pneumonia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Pneumonia due to Mycoplasma pneumoniae",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Poliomyelitis - trivalent - inactivated - whole virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Poliomyelitis oral - bivalent - live attenuated",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Poliomyelitis oral - monovalent live attenuated",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Poliomyelitis oral - trivalent - live attenuated",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Poliomyelitis vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Psittacosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Q fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Rabies",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Rabies vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Respiratory syncytial virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Respiratory syncytial virus vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Rhinovirus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Rift Valley fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Rocky Mountain spotted fever vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Ross River disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Rubella",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Salmonella infection",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Sandfly fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Sapovirus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Scabies",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Schistosomiasis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Screwworm",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Severe acute respiratory syndrome",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Severe fever with thrombocytopenia syndrome",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Shigellosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Smallpox",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Smallpox vaccine",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Smog",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Sporotrichosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Spotted fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "St Louis encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Certain staphylococcal or streptococcal disease",
+    "child": [
+              {"canonical_hazard": "Streptococcus pneumoniae (Pneumococcal disease)",
+              "child": null,
+              "variant": null
+              },
+              {
+                "canonical_hazard": "Streptococcus pyogenes (Invasive group A streptococcal disease iGA)",
+                "child": null,
+                "variant": null
+              },
+              {
+                "canonical_hazard": "Scarlet fever",
+                "child": null,
+                "variant": null
+              },
+              {
+                "canonical_hazard": "Meningitis due to Staphylococcus",
+                "child": null,
+                "variant": null
+              },
+              {
+                "canonical_hazard": "Other specified staphylococcal or streptococcal diseases",
+                "child": null,
+                "variant": null
+              }
+            ],
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Sudan virus disease",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Swine influenza A H1N1 virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Swine influenza A H3N2 virus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Syphilis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tetanus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tetanus vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tick-borne encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Toscana phlebovirus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Trachoma",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Trichinosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tsunami",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tuberculosis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tuberculosis vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Tularaemia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Typhoid fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Typhoid vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Typhus (exanthematicus) vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Typhus fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Unintentional exposure to radiation",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Unintentional exposure to steam, hot vapour, air or gases",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Unintentional exposure to uncontrolled fire",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Unknown or unspecified causes of morbidity",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Vaping related disorder",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Varicella",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Venezuelan equine encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Vibrio vulnificus",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Viral conjunctivitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Viral encephalitis - not elsewhere classified",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Volcanic eruption",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "West Nile virus infection",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Western equine encephalitis",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Persussis (whooping cough)",
+    "child": null,
+    "variant": [
+      "whooping cough",
+      "pertussis"
+    ]
+  },
+  {
+    "canonical_hazard": "Yellow fever",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Yellow fever vaccines",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Yersinia",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Zika virus disease",
+    "child": null,
+    "variant": null
+  }
+]

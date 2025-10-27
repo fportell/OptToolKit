@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}RSS Subscriptions - OpsToolKit{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-list-ul text-danger"></i>
+                    RSS Subscriptions
+                </h2>
+                <p class="text-muted mb-0">
+                    Showing {{ subscriptions|length }} of {{ total }} subscriptions
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('rss_manager.add_form') }}" class="btn btn-success me-2">
+                    <i class="bi bi-plus-circle"></i> Add New
+                </a>
+                <a href="{{ url_for('rss_manager.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel"></i> Filters & Search
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('rss_manager.list_subscriptions') }}" id="filter-form">
+                    <div class="row">
+                        <!-- Search -->
+                        <div class="col-md-6 mb-3">
+                            <label for="search" class="form-label">
+                                <i class="bi bi-search"></i> Full-Text Search
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="search"
+                                   name="search"
+                                   value="{{ filters.search or '' }}"
+                                   placeholder="Search titles and URLs...">
+                            <div class="form-text">FTS5-powered search across titles and URLs</div>
+                        </div>
+
+                        <!-- Per Page -->
+                        <div class="col-md-6 mb-3">
+                            <label for="per_page" class="form-label">
+                                <i class="bi bi-list-ol"></i> Per Page
+                            </label>
+                            <select class="form-select" id="per_page" name="per_page" onchange="document.getElementById('filter-form').submit()">
+                                <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                                <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                                <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                                <option value="250" {% if per_page == 250 %}selected{% endif %}>250</option>
+                                <option value="500" {% if per_page == 500 %}selected{% endif %}>500</option>
+                                <option value="0" {% if per_page == 0 %}selected{% endif %}>All</option>
+                            </select>
+                        </div>
+
+                        <!-- Language Filter -->
+                        <div class="col-md-3 mb-3">
+                            <label for="language" class="form-label">
+                                <i class="bi bi-translate"></i> Language
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="language"
+                                   name="language"
+                                   value="{{ filters.language or '' }}"
+                                   placeholder="e.g., en, fr, es"
+                                   maxlength="2">
+                        </div>
+
+                        <!-- Country Filter -->
+                        <div class="col-md-3 mb-3">
+                            <label for="country" class="form-label">
+                                <i class="bi bi-globe"></i> Country
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="country"
+                                   name="country"
+                                   value="{{ filters.country or '' }}"
+                                   placeholder="e.g., USA, CAN, INT"
+                                   maxlength="3">
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div class="col-md-3 mb-3">
+                            <label for="type" class="form-label">
+                                <i class="bi bi-building"></i> Organization Type
+                            </label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="">All Types</option>
+                                {% for org_type in organization_types %}
+                                <option value="{{ org_type }}" {% if filters.type == org_type %}selected{% endif %}>
+                                    {{ org_type }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Scope Filter -->
+                        <div class="col-md-3 mb-3">
+                            <label for="scope" class="form-label">
+                                <i class="bi bi-geo-alt"></i> Scope
+                            </label>
+                            <select class="form-select" id="scope" name="scope">
+                                <option value="">All Scopes</option>
+                                {% for scope_option in scopes %}
+                                <option value="{{ scope_option }}" {% if filters.scope == scope_option %}selected{% endif %}>
+                                    {{ scope_option }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Apply Filters
+                        </button>
+                        <a href="{{ url_for('rss_manager.list_subscriptions') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Clear All
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if subscriptions %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span id="selected-count">0</span> selected
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="bulk-delete-btn" disabled onclick="confirmBulkDelete()">
+                            <i class="bi bi-trash"></i> Delete Selected
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-warning" id="bulk-export-btn" disabled onclick="exportSelected()">
+                            <i class="bi bi-download"></i> Export Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscriptions Table -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" class="form-check-input" id="select-all">
+                                </th>
+                                <th>Title</th>
+                                <th>Language</th>
+                                <th>Country</th>
+                                <th>Type</th>
+                                <th>Scope</th>
+                                <th style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in subscriptions %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input subscription-checkbox" value="{{ sub.rss_id }}">
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ sub.title }}</strong>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-rss"></i>
+                                        <a href="{{ sub.xml_url }}" target="_blank" class="text-decoration-none">{{ sub.xml_url[:50] }}{% if sub.xml_url|length > 50 %}...{% endif %}</a>
+                                    </div>
+                                    {% if sub.html_url %}
+                                    <div class="small text-muted">
+                                        <i class="bi bi-globe"></i>
+                                        <a href="{{ sub.html_url }}" target="_blank" class="text-decoration-none">{{ sub.html_url[:50] }}{% if sub.html_url|length > 50 %}...{% endif %}</a>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ sub.language|upper }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ sub.country }}</span>
+                                    {% if sub.subdivision not in ['N/A', 'NAT'] %}
+                                    <br><small class="text-muted">{{ sub.subdivision }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ sub.type }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge {% if sub.scope == 'International' %}bg-info{% elif sub.scope == 'National' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ sub.scope }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ url_for('rss_manager.edit_form', rss_id=sub.rss_id) }}"
+                                           class="btn btn-outline-primary"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-outline-danger"
+                                                onclick="confirmDelete('{{ sub.rss_id }}', '{{ sub.title|e }}')"
+                                                title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <nav aria-label="Subscriptions pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('rss_manager.list_subscriptions', page=page-1, per_page=per_page, language=filters.language, country=filters.country, type=filters.type, scope=filters.scope, search=filters.search) }}">
+                        Previous
+                    </a>
+                </li>
+
+                {% for p in range(1, total_pages + 1) %}
+                    {% if p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('rss_manager.list_subscriptions', page=p, per_page=per_page, language=filters.language, country=filters.country, type=filters.type, scope=filters.scope, search=filters.search) }}">
+                            {{ p }}
+                        </a>
+                    </li>
+                    {% elif p == page - 3 or p == page + 3 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+
+                <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('rss_manager.list_subscriptions', page=page+1, per_page=per_page, language=filters.language, country=filters.country, type=filters.type, scope=filters.scope, search=filters.search) }}">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- No Results -->
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>No subscriptions found.</strong>
+            {% if filters.language or filters.country or filters.type or filters.scope or filters.search %}
+            Try adjusting your filters or <a href="{{ url_for('rss_manager.list_subscriptions') }}" class="alert-link">clear all filters</a>.
+            {% else %}
+            <a href="{{ url_for('rss_manager.add_form') }}" class="alert-link">Add your first subscription</a> to get started.
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Form (hidden) -->
+<form method="POST" id="delete-form" action="" style="display: none;">
+</form>
+
+<!-- Bulk Delete Form (hidden) -->
+<form method="POST" id="bulk-delete-form" action="{{ url_for('rss_manager.bulk_delete') }}" style="display: none;">
+    <input type="hidden" name="selected_ids" id="bulk-delete-ids">
+</form>
+
+<!-- Export Selected Form (hidden) -->
+<form method="POST" id="export-selected-form" action="{{ url_for('rss_manager.export_opml') }}" style="display: none;">
+    <input type="hidden" name="export_type" value="selected">
+    <input type="hidden" name="selected_ids" id="export-selected-ids">
+    <input type="hidden" name="collection_name" id="export-collection-name">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Selection tracking
+let selectedIds = new Set();
+
+// Update selected count display
+function updateSelectedCount() {
+    const count = selectedIds.size;
+    document.getElementById('selected-count').textContent = count;
+    document.getElementById('bulk-delete-btn').disabled = count === 0;
+    document.getElementById('bulk-export-btn').disabled = count === 0;
+}
+
+// Select all checkbox
+document.getElementById('select-all').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.subscription-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = this.checked;
+        if (this.checked) {
+            selectedIds.add(cb.value);
+        } else {
+            selectedIds.delete(cb.value);
+        }
+    });
+    updateSelectedCount();
+});
+
+// Individual checkboxes
+document.querySelectorAll('.subscription-checkbox').forEach(cb => {
+    cb.addEventListener('change', function() {
+        if (this.checked) {
+            selectedIds.add(this.value);
+        } else {
+            selectedIds.delete(this.value);
+        }
+        updateSelectedCount();
+
+        // Update select-all checkbox
+        const allChecked = document.querySelectorAll('.subscription-checkbox:checked').length ===
+                          document.querySelectorAll('.subscription-checkbox').length;
+        document.getElementById('select-all').checked = allChecked;
+    });
+});
+
+// Delete single subscription
+function confirmDelete(rssId, title) {
+    if (confirm(`Are you sure you want to delete "${title}"?\n\nThis subscription will be backed up and can be restored from the Backup page.`)) {
+        const form = document.getElementById('delete-form');
+        form.action = `/tools/rss-manager/subscriptions/${rssId}/delete`;
+        form.submit();
+    }
+}
+
+// Bulk delete
+function confirmBulkDelete() {
+    const count = selectedIds.size;
+    if (confirm(`Are you sure you want to delete ${count} subscription(s)?\n\nThey will be backed up and can be restored from the Backup page.`)) {
+        document.getElementById('bulk-delete-ids').value = Array.from(selectedIds).join(',');
+        document.getElementById('bulk-delete-form').submit();
+    }
+}
+
+// Export selected
+function exportSelected() {
+    const collectionName = prompt('Enter a name for this collection:', 'Selected Subscriptions');
+    if (collectionName) {
+        document.getElementById('export-selected-ids').value = Array.from(selectedIds).join(',');
+        document.getElementById('export-collection-name').value = collectionName;
+        document.getElementById('export-selected-form').submit();
+    }
+}
+
+// Initialize
+updateSelectedCount();
+</script>
+{% endblock %}

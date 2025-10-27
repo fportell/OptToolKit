@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}RSS Manager - OpsToolKit{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-rss text-danger"></i>
+                    RSS Manager
+                </h2>
+                <p class="text-muted mb-0">
+                    Manage RSS feed subscriptions with OPML export
+                </p>
+            </div>
+            <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Tools
+            </a>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-danger">
+                    <div class="card-body text-center">
+                        <i class="bi bi-rss-fill text-danger" style="font-size: 2rem;"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.total }}</h3>
+                        <p class="text-muted mb-0">Total Subscriptions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <i class="bi bi-translate text-primary" style="font-size: 2rem;"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.by_language|length }}</h3>
+                        <p class="text-muted mb-0">Languages</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <i class="bi bi-building text-success" style="font-size: 2rem;"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.by_type|length }}</h3>
+                        <p class="text-muted mb-0">Organization Types</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <i class="bi bi-globe text-info" style="font-size: 2rem;"></i>
+                        <h3 class="mt-2 mb-0">{{ stats.by_country|length }}</h3>
+                        <p class="text-muted mb-0">Countries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning-charge"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('rss_manager.list_subscriptions') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-list-ul"></i> View All Subscriptions
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('rss_manager.add_form') }}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-plus-circle"></i> Add New Subscription
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <form method="POST" action="{{ url_for('rss_manager.export_opml') }}" class="d-inline">
+                            <input type="hidden" name="export_type" value="all">
+                            <input type="hidden" name="collection_name" value="All RSS Subscriptions">
+                            <button type="submit" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-download"></i> Export All to OPML
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('rss_manager.backup_page') }}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-archive"></i> Backup & Restore
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Breakdown -->
+        <div class="row">
+            <!-- By Language -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">
+                            <i class="bi bi-translate"></i> Top 10 Languages
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Language</th>
+                                        <th class="text-end">Count</th>
+                                        <th class="text-end">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lang in stats.by_language %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('rss_manager.list_subscriptions', language=lang.language) }}" class="text-decoration-none">
+                                                {{ lang.language|upper }}
+                                            </a>
+                                        </td>
+                                        <td class="text-end">{{ lang.count }}</td>
+                                        <td class="text-end">{{ "%.1f"|format((lang.count / stats.total * 100)) }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- By Type -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="bi bi-building"></i> By Organization Type
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th class="text-end">Count</th>
+                                        <th class="text-end">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for type in stats.by_type %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('rss_manager.list_subscriptions', type=type.type) }}" class="text-decoration-none">
+                                                {{ type.type }}
+                                            </a>
+                                        </td>
+                                        <td class="text-end">{{ type.count }}</td>
+                                        <td class="text-end">{{ "%.1f"|format((type.count / stats.total * 100)) }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- By Country -->
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="bi bi-globe"></i> Top 10 Countries
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th class="text-end">Count</th>
+                                        <th class="text-end">%</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for country in stats.by_country %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ country.country }}</span>
+                                        </td>
+                                        <td class="text-end">{{ country.count }}</td>
+                                        <td class="text-end">{{ "%.1f"|format((country.count / stats.total * 100)) }}%</td>
+                                        <td class="text-end">
+                                            <a href="{{ url_for('rss_manager.list_subscriptions', country=country.country) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="card border-info mb-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle"></i> About RSS Manager
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>RSS Manager</strong> helps you organize and manage RSS feed subscriptions for monitoring news, health alerts, and other content sources.
+                </p>
+                <p class="mb-2"><strong>Features:</strong></p>
+                <ul class="mb-0">
+                    <li>Full-text search across titles and URLs (FTS5-powered)</li>
+                    <li>Advanced filtering by language, country, organization type, and scope</li>
+                    <li>OPML export for importing into RSS readers</li>
+                    <li>Bulk operations (delete multiple subscriptions at once)</li>
+                    <li>Backup & restore with soft deletes</li>
+                    <li>Multi-dimensional classification (language, country, subdivision, type, scope)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

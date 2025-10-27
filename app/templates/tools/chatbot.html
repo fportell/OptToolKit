@@ -10,15 +10,20 @@
             <div>
                 <h2 class="mb-2">
                     <i class="bi bi-chat-dots text-info"></i>
-                    DR Knowledge Chatbot
+                    DR Knowledge Chatbot - Gerardo
                 </h2>
                 <p class="text-muted mb-0">
-                    Ask questions about the DR database in natural language
+                    Event-based surveillance assistant for epidemiological events
                 </p>
             </div>
-            <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Back to Tools
-            </a>
+            <div>
+                <a href="{{ url_for('chatbot.upload') }}" class="btn btn-outline-info me-2">
+                    <i class="bi bi-upload"></i> Upload Database
+                </a>
+                <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Tools
+                </a>
+            </div>
         </div>
 
         <!-- Knowledge Base Info -->
@@ -26,18 +31,26 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <i class="bi bi-{% if stats.loaded %}check-circle-fill{% else %}exclamation-triangle-fill{% endif %}"></i>
-                    <strong>Knowledge Base:</strong>
+                    <strong>Database:</strong>
                     {% if stats.loaded %}
-                        Loaded with {{ stats.document_count }} documents |
-                        Model: {{ stats.model_name }} |
-                        Embeddings: {{ stats.embedding_dimension }}D
+                        {{ stats.document_count }} epidemiological events |
+                        {{ stats.chunk_count }} chunks |
+                        Model: {{ stats.model_name }}
+                        {% if stats.last_update %}
+                        | Last updated: {{ stats.last_update[:10] }}
+                        {% endif %}
                     {% else %}
-                        Not loaded - responses will be general only
+                        Not loaded - please upload database
                     {% endif %}
                 </div>
-                <button class="btn btn-sm btn-outline-danger" onclick="clearChat()">
-                    <i class="bi bi-trash"></i> Clear History
-                </button>
+                <div>
+                    <button class="btn btn-sm btn-outline-success me-2" onclick="exportChat()">
+                        <i class="bi bi-download"></i> Export Markdown
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearChat()">
+                        <i class="bi bi-trash"></i> Clear History
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -60,19 +73,18 @@
                             </div>
                             <div class="message-content bg-white p-3 rounded shadow-sm" style="max-width: 80%;">
                                 <p class="mb-1">
-                                    <strong>DR Knowledge Assistant</strong>
+                                    <strong>Gerardo</strong>
                                     <small class="text-muted">• Just now</small>
                                 </p>
                                 <p class="mb-0">
-                                    Hello! I'm your DR knowledge assistant. I can help you find information from the
-                                    DR database using natural language queries. Ask me anything about discrepancy reports,
-                                    technical issues, or related topics.
+                                    Hola! I'm Gerardo, and I can help you with our historical data.
                                 </p>
                                 {% if stats.loaded %}
                                 <p class="mb-0 mt-2">
                                     <small class="text-muted">
-                                        <i class="bi bi-info-circle"></i>
-                                        I have access to {{ stats.document_count }} documents from the knowledge base.
+                                        <i class="bi bi-database"></i>
+                                        I currently have access to {{ stats.document_count }} epidemiological events
+                                        ({{ stats.chunk_count }} searchable chunks) from the database.
                                     </small>
                                 </p>
                                 {% endif %}
@@ -81,6 +93,7 @@
                     </div>
 
                     <!-- Previous Messages from History -->
+                    <div id="historical-messages">
                     {% for msg in history %}
                     {% if msg.role == 'user' %}
                     <div class="message-user mb-3">
@@ -101,13 +114,25 @@
                                  style="width: 36px; height: 36px; min-width: 36px;">
                                 <i class="bi bi-robot"></i>
                             </div>
-                            <div class="message-content bg-white p-3 rounded shadow-sm" style="max-width: 80%;">
-                                <p class="mb-0">{{ msg.content }}</p>
+                            <div class="message-content bg-white p-3 rounded shadow-sm position-relative"
+                                 style="max-width: 80%;"
+                                 id="hist_msg_{{ loop.index }}"
+                                 data-markdown="{{ msg.content }}">
+                                <!-- Copy button in top-right corner -->
+                                <button class="btn btn-sm btn-link position-absolute copy-btn"
+                                        style="top: 4px; right: 4px; padding: 2px 6px; font-size: 14px; opacity: 0.6;"
+                                        onclick="copyMessageMarkdown('hist_msg_{{ loop.index }}')"
+                                        title="Copy as Markdown">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                                <div class="mb-0 message-text assistant-message-content">{{ msg.content }}</div>
                             </div>
                         </div>
                     </div>
                     {% endif %}
                     {% endfor %}
+                    </div>
+                    <!-- End historical messages -->
 
                     <!-- Messages will be added here dynamically -->
                     <div id="messages"></div>
@@ -164,26 +189,26 @@
                 <div class="row">
                     <div class="col-md-6 mb-2">
                         <button class="btn btn-sm btn-outline-info w-100 text-start"
-                                onclick="askQuestion('What are the most common types of DRs?')">
-                            <i class="bi bi-chat-quote"></i> What are the most common types of DRs?
+                                onclick="askQuestion('What are recent measles outbreaks in 2025?')">
+                            <i class="bi bi-chat-quote"></i> What are recent measles outbreaks in 2025?
                         </button>
                     </div>
                     <div class="col-md-6 mb-2">
                         <button class="btn btn-sm btn-outline-info w-100 text-start"
-                                onclick="askQuestion('Show me high priority safety issues')">
-                            <i class="bi bi-chat-quote"></i> Show me high priority safety issues
+                                onclick="askQuestion('Show me mpox cases in the United States')">
+                            <i class="bi bi-chat-quote"></i> Show me mpox cases in the United States
                         </button>
                     </div>
                     <div class="col-md-6 mb-2">
                         <button class="btn btn-sm btn-outline-info w-100 text-start"
-                                onclick="askQuestion('What DRs are assigned to the infrastructure team?')">
-                            <i class="bi bi-chat-quote"></i> What DRs are assigned to the infrastructure team?
+                                onclick="askQuestion('What diseases have been reported in Africa recently?')">
+                            <i class="bi bi-chat-quote"></i> What diseases have been reported in Africa recently?
                         </button>
                     </div>
                     <div class="col-md-6 mb-2">
                         <button class="btn btn-sm btn-outline-info w-100 text-start"
-                                onclick="askQuestion('Summarize recent technical issues')">
-                            <i class="bi bi-chat-quote"></i> Summarize recent technical issues
+                                onclick="askQuestion('Summarize COVID-19 trends from 2024')">
+                            <i class="bi bi-chat-quote"></i> Summarize COVID-19 trends from 2024
                         </button>
                     </div>
                 </div>
@@ -264,10 +289,46 @@
         }
     }
 
-    /* Context badge styling */
-    .context-badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
+    /* Link styling in bot messages */
+    .message-content a {
+        color: #0d6efd;
+        text-decoration: underline;
+        font-weight: 500;
+    }
+
+    .message-content a:hover {
+        color: #0a58ca;
+        text-decoration: none;
+    }
+
+    /* Copy button styling */
+    .copy-btn {
+        transition: opacity 0.2s ease, color 0.2s ease;
+        color: #6c757d;
+        text-decoration: none !important;
+        background: none;
+        border: none;
+    }
+
+    .copy-btn:hover {
+        opacity: 1 !important;
+        color: #0dcaf0 !important;
+        background: rgba(13, 202, 240, 0.1);
+        border-radius: 4px;
+    }
+
+    /* Show copy button on message hover */
+    .message-content .copy-btn {
+        opacity: 0;
+    }
+
+    .message-content:hover .copy-btn {
+        opacity: 0.6;
+    }
+
+    .message-bot .message-content {
+        position: relative;
+        padding-right: 35px; /* Make room for copy button */
     }
 </style>
 {% endblock %}
@@ -297,6 +358,17 @@
         document.getElementById('typing-indicator').style.display = 'block';
         scrollToBottom();
 
+        // Show "still thinking" message after 20 seconds
+        let thinkingTimeout = setTimeout(() => {
+            const typingIndicator = document.getElementById('typing-indicator');
+            const thinkingMsg = document.createElement('div');
+            thinkingMsg.id = 'thinking-message';
+            thinkingMsg.className = 'text-muted small mt-2';
+            thinkingMsg.innerHTML = '<i class="bi bi-hourglass-split"></i> Complex query detected - still processing (this may take up to 90 seconds)...';
+            typingIndicator.querySelector('.message-content').appendChild(thinkingMsg);
+            scrollToBottom();
+        }, 20000);
+
         try {
             // Send to backend
             const response = await fetch('{{ url_for("chatbot.send_message") }}', {
@@ -309,8 +381,11 @@
 
             const data = await response.json();
 
-            // Hide typing indicator
+            // Clear the thinking timeout and hide typing indicator
+            clearTimeout(thinkingTimeout);
             document.getElementById('typing-indicator').style.display = 'none';
+            const thinkingMsg = document.getElementById('thinking-message');
+            if (thinkingMsg) thinkingMsg.remove();
 
             if (response.ok) {
                 // Add bot response
@@ -322,7 +397,10 @@
 
         } catch (error) {
             console.error('Error sending message:', error);
+            clearTimeout(thinkingTimeout);
             document.getElementById('typing-indicator').style.display = 'none';
+            const thinkingMsg = document.getElementById('thinking-message');
+            if (thinkingMsg) thinkingMsg.remove();
             addBotMessage('Network error. Please check your connection and try again.', null, null, true);
         } finally {
             // Re-enable input
@@ -361,14 +439,10 @@
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message-bot mb-3';
 
-        let contextHtml = '';
-        if (context && context.length > 0) {
-            contextHtml = '<div class="mt-2"><small class="text-muted"><i class="bi bi-database"></i> Context sources: ';
-            contextHtml += context.map((c, i) => `<span class="badge bg-info context-badge">Source ${i+1} (${(c.score * 100).toFixed(0)}%)</span>`).join(' ');
-            contextHtml += '</small></div>';
-        }
-
         const bgClass = isError ? 'bg-danger text-white' : 'bg-white';
+
+        // Generate unique ID for this message
+        const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
         messageDiv.innerHTML = `
             <div class="d-flex align-items-start">
@@ -376,9 +450,15 @@
                      style="width: 36px; height: 36px; min-width: 36px;">
                     <i class="bi bi-robot"></i>
                 </div>
-                <div class="message-content ${bgClass} p-3 rounded shadow-sm" style="max-width: 80%;">
-                    <p class="mb-0" style="white-space: pre-wrap;">${escapeHtml(text)}</p>
-                    ${contextHtml}
+                <div class="message-content ${bgClass} p-3 rounded shadow-sm position-relative" style="max-width: 80%;" id="${messageId}" data-markdown="${escapeHtml(text)}">
+                    <!-- Copy button in top-right corner -->
+                    <button class="btn btn-sm btn-link position-absolute copy-btn"
+                            style="top: 4px; right: 4px; padding: 2px 6px; font-size: 14px; opacity: 0.6;"
+                            onclick="copyMessageMarkdown('${messageId}')"
+                            title="Copy as Markdown">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <div class="mb-0 message-text">${markdownToHtml(text)}</div>
                     ${processingTime ? `<small class="text-muted d-block mt-1"><i class="bi bi-stopwatch"></i> ${processingTime}s</small>` : ''}
                 </div>
             </div>
@@ -406,7 +486,8 @@
             });
 
             if (response.ok) {
-                // Clear messages from UI
+                // Clear both historical and new messages from UI
+                document.getElementById('historical-messages').innerHTML = '';
                 document.getElementById('messages').innerHTML = '';
                 OpsToolKit.showNotification('Chat history cleared', 'success', 2000);
             }
@@ -429,7 +510,125 @@
         return div.innerHTML;
     }
 
+    // Convert markdown to HTML (for bot messages)
+    function markdownToHtml(text) {
+        // Convert markdown links [text](url) to HTML <a> tags
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // Convert **bold** to <strong>
+        text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+        // Convert line breaks to <br>
+        text = text.replace(/\n/g, '<br>');
+
+        return text;
+    }
+
+    // Export chat to markdown file
+    function exportChat() {
+        const messages = [];
+        const timestamp = new Date().toISOString().split('T')[0];
+
+        // Collect all user and bot messages
+        const allMessages = document.querySelectorAll('.message-user, .message-bot');
+
+        if (allMessages.length === 0) {
+            OpsToolKit.showNotification('No messages to export', 'warning', 2000);
+            return;
+        }
+
+        // Build markdown content
+        let markdown = `# DR Knowledge Chatbot - Conversation Export\n\n`;
+        markdown += `**Date:** ${new Date().toLocaleString()}\n\n`;
+        markdown += `**Assistant:** Gerardo - Event-based surveillance assistant\n\n`;
+        markdown += `---\n\n`;
+
+        allMessages.forEach((msgDiv) => {
+            const isUser = msgDiv.classList.contains('message-user');
+            const contentDiv = msgDiv.querySelector('.message-content');
+
+            if (contentDiv) {
+                // Get text content (strip HTML but preserve line breaks)
+                let text = contentDiv.textContent.trim();
+
+                // Clean up extra whitespace
+                text = text.replace(/\s+/g, ' ').trim();
+
+                if (isUser) {
+                    markdown += `### User\n\n${text}\n\n`;
+                } else {
+                    // For bot messages, try to preserve markdown formatting
+                    // Skip the "Gerardo • Just now" header if present
+                    if (text.startsWith('Gerardo')) {
+                        text = text.replace(/^Gerardo\s*•\s*Just now\s*/i, '').trim();
+                    }
+
+                    markdown += `### Gerardo\n\n${text}\n\n`;
+                }
+            }
+        });
+
+        markdown += `---\n\n`;
+        markdown += `*Generated with Claude Code - OpsToolKit*\n`;
+
+        // Create blob and download
+        const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `chatbot-conversation-${timestamp}.md`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        OpsToolKit.showNotification('Chat exported successfully', 'success', 2000);
+    }
+
+    // Copy message as markdown to clipboard
+    async function copyMessageMarkdown(messageId) {
+        const messageEl = document.getElementById(messageId);
+        const markdownText = messageEl.getAttribute('data-markdown');
+
+        try {
+            await navigator.clipboard.writeText(markdownText);
+
+            // Show success feedback
+            const copyBtn = messageEl.querySelector('.copy-btn');
+            const originalIcon = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="bi bi-check2"></i>';
+            copyBtn.style.opacity = '1';
+            copyBtn.style.color = '#198754'; // Bootstrap success color
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                copyBtn.innerHTML = originalIcon;
+                copyBtn.style.opacity = '0.6';
+                copyBtn.style.color = '';
+            }, 2000);
+
+            // Optional: show toast notification
+            OpsToolKit.showNotification('Response copied to clipboard', 'success', 2000);
+
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            OpsToolKit.showNotification('Failed to copy to clipboard', 'danger', 3000);
+        }
+    }
+
+    // Convert historical assistant messages from markdown to HTML on page load
+    function convertHistoricalMessages() {
+        const messages = document.querySelectorAll('.assistant-message-content');
+        messages.forEach(msg => {
+            const plainText = msg.textContent;
+            msg.innerHTML = markdownToHtml(plainText);
+        });
+    }
+
     // Auto-scroll on load
-    window.addEventListener('load', scrollToBottom);
+    window.addEventListener('load', function() {
+        convertHistoricalMessages();
+        scrollToBottom();
+    });
 </script>
 {% endblock %}

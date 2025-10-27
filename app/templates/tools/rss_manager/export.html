@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Export OPML - RSS Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-download text-warning"></i>
+                    Export to OPML
+                </h2>
+                <p class="text-muted mb-0">
+                    Export subscriptions to OPML format for importing into RSS readers
+                </p>
+            </div>
+            <a href="{{ url_for('rss_manager.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Export All -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text"></i> Export All Subscriptions
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Export all active subscriptions to a single OPML file.</p>
+                <form method="POST" action="{{ url_for('rss_manager.export_opml') }}">
+                    <input type="hidden" name="export_type" value="all">
+                    <div class="mb-3">
+                        <label for="collection_name_all" class="form-label fw-bold">
+                            <i class="bi bi-folder"></i> Collection Name
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="collection_name_all"
+                               name="collection_name"
+                               value="All RSS Subscriptions"
+                               required>
+                        <div class="form-text">This name will appear in the OPML file</div>
+                    </div>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-download"></i> Export All
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Export Filtered -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-funnel"></i> Export Filtered Subscriptions
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Export subscriptions matching specific criteria.</p>
+                <form method="POST" action="{{ url_for('rss_manager.export_opml') }}">
+                    <input type="hidden" name="export_type" value="filtered">
+
+                    <!-- Collection Name -->
+                    <div class="mb-3">
+                        <label for="collection_name_filtered" class="form-label fw-bold">
+                            <i class="bi bi-folder"></i> Collection Name
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="collection_name_filtered"
+                               name="collection_name"
+                               value="Filtered RSS Subscriptions"
+                               required>
+                    </div>
+
+                    <div class="row">
+                        <!-- Language Filter -->
+                        <div class="col-md-6 mb-3">
+                            <label for="language" class="form-label">
+                                <i class="bi bi-translate"></i> Language
+                            </label>
+                            <input type="text"
+                                   class="form-control text-uppercase"
+                                   id="language"
+                                   name="language"
+                                   placeholder="e.g., EN, FR, ES"
+                                   maxlength="2">
+                            <div class="form-text">ISO 639-1 code (2 letters)</div>
+                        </div>
+
+                        <!-- Country Filter -->
+                        <div class="col-md-6 mb-3">
+                            <label for="country" class="form-label">
+                                <i class="bi bi-flag"></i> Country
+                            </label>
+                            <input type="text"
+                                   class="form-control text-uppercase"
+                                   id="country"
+                                   name="country"
+                                   placeholder="e.g., USA, CAN, INT"
+                                   maxlength="3">
+                            <div class="form-text">ISO 3166-1 alpha-3 code (3 letters)</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Type Filter -->
+                        <div class="col-md-6 mb-3">
+                            <label for="type" class="form-label">
+                                <i class="bi bi-building"></i> Organization Type
+                            </label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="">All Types</option>
+                                <option value="Academic Institution">Academic Institution</option>
+                                <option value="Government Agency">Government Agency</option>
+                                <option value="Media Outlet">Media Outlet</option>
+                                <option value="Non-Governmental Organization">Non-Governmental Organization</option>
+                                <option value="Professional Association">Professional Association</option>
+                                <option value="Public Health Agency">Public Health Agency</option>
+                                <option value="Scientific Journal">Scientific Journal</option>
+                            </select>
+                        </div>
+
+                        <!-- Scope Filter -->
+                        <div class="col-md-6 mb-3">
+                            <label for="scope" class="form-label">
+                                <i class="bi bi-diagram-3"></i> Geographic Scope
+                            </label>
+                            <select class="form-select" id="scope" name="scope">
+                                <option value="">All Scopes</option>
+                                <option value="International">International</option>
+                                <option value="National">National</option>
+                                <option value="Local">Local</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Note:</strong> Leave filters empty to include all subscriptions. Only subscriptions matching ALL specified filters will be exported.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-download"></i> Export Filtered
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-question-circle"></i> About OPML Export
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>What is OPML?</strong></p>
+                <p class="mb-2">
+                    OPML (Outline Processor Markup Language) is an XML-based format for sharing lists of RSS feeds.
+                    Most RSS readers (like Feedly, Inoreader, NewsBlur) can import OPML files.
+                </p>
+                <p class="mb-2"><strong>Export Features:</strong></p>
+                <ul class="mb-0">
+                    <li>Subscriptions are grouped by language</li>
+                    <li>Includes feed URL, website URL, and title</li>
+                    <li>Compatible with OPML 2.0 specification</li>
+                    <li>Can be imported into any RSS reader</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-uppercase language and country fields
+document.getElementById('language').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+
+document.getElementById('country').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+</script>
+{% endblock %}

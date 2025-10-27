@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Database - DR Knowledge Chatbot{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-upload text-info"></i>
+                    Upload Epidemiological Database
+                </h2>
+                <p class="text-muted mb-0">
+                    Update the DR Knowledge Chatbot database with the latest Excel file
+                </p>
+            </div>
+            <a href="{{ url_for('chatbot.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Chatbot
+            </a>
+        </div>
+
+        <!-- Upload Instructions -->
+        <div class="alert alert-info" role="alert">
+            <h5 class="alert-heading">
+                <i class="bi bi-info-circle"></i> Instructions
+            </h5>
+            <ul class="mb-0">
+                <li>Upload the latest <strong>DR_database_PBI.xlsx</strong> file</li>
+                <li>The system will automatically detect new, modified, and deleted events</li>
+                <li>A backup of the current database will be created (2-day retention)</li>
+                <li>Large updates (>100 events) may take 10-20 minutes to process</li>
+                <li>All authenticated users can upload database updates</li>
+            </ul>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-excel"></i> Upload Excel File
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file-input" class="form-label">Select Excel File (.xlsx)</label>
+                        <div class="input-group">
+                            <input type="file"
+                                   class="form-control"
+                                   id="file-input"
+                                   accept=".xlsx"
+                                   required>
+                            <button type="submit" class="btn btn-info" id="upload-btn">
+                                <i class="bi bi-upload"></i> Upload & Process
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Only .xlsx files are accepted. Maximum file size: 50MB.
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar (hidden by default) -->
+                    <div id="upload-progress" class="mb-3" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                                 role="progressbar"
+                                 aria-valuenow="0"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                                 style="width: 0%"
+                                 id="progress-bar">
+                                Processing...
+                            </div>
+                        </div>
+                        <small class="text-muted" id="progress-text">Uploading file...</small>
+                    </div>
+
+                    <!-- Upload Result -->
+                    <div id="upload-result" class="alert" role="alert" style="display: none;"></div>
+                </form>
+
+                <!-- Change Preview (shown after upload) -->
+                <div id="change-preview" class="mt-4" style="display: none;">
+                    <h6 class="border-bottom pb-2">Change Summary</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h3 class="text-success mb-1" id="new-count">0</h3>
+                                    <small class="text-muted">New Events</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <h3 class="text-warning mb-1" id="modified-count">0</h3>
+                                    <small class="text-muted">Modified Events</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-danger">
+                                <div class="card-body text-center">
+                                    <h3 class="text-danger mb-1" id="deleted-count">0</h3>
+                                    <small class="text-muted">Deleted Events</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload History -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Upload History
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if upload_history and upload_history|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Timestamp</th>
+                                <th>Uploaded By</th>
+                                <th>Changes</th>
+                                <th>Total Events</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in upload_history %}
+                            <tr>
+                                <td><code>{{ record.version_id }}</code></td>
+                                <td>{{ record.timestamp[:19].replace('T', ' ') }}</td>
+                                <td>{{ record.uploaded_by }}</td>
+                                <td>
+                                    <span class="badge bg-success">+{{ record.changes.new }}</span>
+                                    <span class="badge bg-warning">~{{ record.changes.modified }}</span>
+                                    <span class="badge bg-danger">-{{ record.changes.deleted }}</span>
+                                </td>
+                                <td>{{ record.total_events }}</td>
+                                <td>
+                                    {% if record.status == 'completed' %}
+                                    <span class="badge bg-success">{{ record.status }}</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">{{ record.status }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">
+                    <i class="bi bi-info-circle"></i> No upload history available.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('upload-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const fileInput = document.getElementById('file-input');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            OpsToolKit.showNotification('Please select a file', 'warning', 3000);
+            return;
+        }
+
+        // Validate file extension
+        if (!file.name.endsWith('.xlsx')) {
+            OpsToolKit.showNotification('Only .xlsx files are allowed', 'danger', 3000);
+            return;
+        }
+
+        // Validate file size (50MB max)
+        if (file.size > 50 * 1024 * 1024) {
+            OpsToolKit.showNotification('File size exceeds 50MB limit', 'danger', 3000);
+            return;
+        }
+
+        // Show progress
+        document.getElementById('upload-progress').style.display = 'block';
+        document.getElementById('upload-result').style.display = 'none';
+        document.getElementById('change-preview').style.display = 'none';
+        document.getElementById('upload-btn').disabled = true;
+        fileInput.disabled = true;
+
+        // Update progress bar
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        progressBar.style.width = '30%';
+        progressText.textContent = 'Uploading file...';
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('{{ url_for("chatbot.upload") }}', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Processing complete';
+
+            // Hide progress after a moment
+            setTimeout(() => {
+                document.getElementById('upload-progress').style.display = 'none';
+            }, 1000);
+
+            // Show result
+            const resultDiv = document.getElementById('upload-result');
+            resultDiv.style.display = 'block';
+
+            if (data.success) {
+                resultDiv.className = 'alert alert-success';
+                resultDiv.innerHTML = `
+                    <h6 class="alert-heading">
+                        <i class="bi bi-check-circle"></i> Upload Successful
+                    </h6>
+                    <p class="mb-0">${data.message}</p>
+                    <p class="mb-0 mt-2"><small>Version: <code>${data.version_id}</code></small></p>
+                `;
+
+                // Show change preview
+                if (data.changes) {
+                    document.getElementById('new-count').textContent = data.changes.new;
+                    document.getElementById('modified-count').textContent = data.changes.modified;
+                    document.getElementById('deleted-count').textContent = data.changes.deleted;
+                    document.getElementById('change-preview').style.display = 'block';
+                }
+
+                // Reload page after 3 seconds to show updated history
+                setTimeout(() => {
+                    window.location.reload();
+                }, 3000);
+
+            } else {
+                resultDiv.className = 'alert alert-danger';
+                resultDiv.innerHTML = `
+                    <h6 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle"></i> Upload Failed
+                    </h6>
+                    <p class="mb-0">${data.error}</p>
+                `;
+            }
+
+        } catch (error) {
+            console.error('Upload error:', error);
+
+            const resultDiv = document.getElementById('upload-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'alert alert-danger';
+            resultDiv.innerHTML = `
+                <h6 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle"></i> Network Error
+                </h6>
+                <p class="mb-0">Failed to upload file. Please check your connection and try again.</p>
+            `;
+
+            document.getElementById('upload-progress').style.display = 'none';
+
+        } finally {
+            // Re-enable form
+            document.getElementById('upload-btn').disabled = false;
+            fileInput.disabled = false;
+        }
+    });
+
+    // File input change handler - show file name
+    document.getElementById('file-input').addEventListener('change', function() {
+        const fileName = this.files[0]?.name;
+        if (fileName) {
+            console.log('Selected file:', fileName);
+        }
+    });
+</script>
+{% endblock %}

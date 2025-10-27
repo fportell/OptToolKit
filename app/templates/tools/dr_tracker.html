@@ -13,7 +13,7 @@
                     DR-Tracker Builder
                 </h2>
                 <p class="text-muted mb-0">
-                    Generate structured DR-Tracker reports from text descriptions
+                    Upload Daily Report HTML file to generate structured tracker
                 </p>
             </div>
             <a href="{{ url_for('landing.tools') }}" class="btn btn-outline-secondary">
@@ -24,186 +24,71 @@
         <!-- Info Alert -->
         <div class="alert alert-info" role="alert">
             <i class="bi bi-info-circle-fill"></i>
-            <strong>AI-Powered Generation</strong> |
-            Converts natural language to structured DR entries |
-            Export to CSV, JSON, or XLSX |
-            <strong>Timeout:</strong> {{ config.DR_TRACKER_TIMEOUT_SECONDS }} seconds
+            <strong>Daily Report Processing</strong> |
+            Upload HTML file → AI extracts data → Match hazards → Edit entries → Export Excel (.xlsm)
         </div>
 
-        <!-- Input Form -->
+        <!-- Upload Form Card -->
         <div class="card shadow-sm">
             <div class="card-header bg-warning text-dark">
                 <h5 class="mb-0">
-                    <i class="bi bi-pencil-square"></i> Describe DR Entries
+                    <i class="bi bi-cloud-upload"></i> Upload HTML File
                 </h5>
             </div>
             <div class="card-body">
-                <form method="POST"
-                      action="{{ url_for('dr_tracker.generate') }}"
-                      id="dr-form"
-                      data-loading="true"
-                      data-loading-message="AI is generating your DR entries...">
-
-                    <!-- Prompt Input -->
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <!-- File Input -->
                     <div class="mb-4">
-                        <label for="prompt" class="form-label fw-bold">
-                            <i class="bi bi-chat-left-text"></i> DR Description
+                        <label for="htmlFile" class="form-label fw-bold">
+                            <i class="bi bi-file-earmark-code"></i> Daily Report HTML File
                         </label>
-                        <textarea class="form-control font-monospace"
-                                  id="prompt"
-                                  name="prompt"
-                                  rows="10"
-                                  placeholder="Describe the discrepancy reports you want to create...
-
-Example 1 (Multiple DRs):
-Create 3 DR entries:
-1. Critical issue with server cooling system in datacenter A, needs immediate attention
-2. Medium priority documentation error in API guide, assigned to tech writing team
-3. Low priority cosmetic UI issue in dashboard
-
-Example 2 (Detailed Single DR):
-Create a high-priority DR for the network outage that occurred on Dec 15th. The main router failed causing 2 hours of downtime. This affected all users and needs to be resolved by the infrastructure team within 5 days.
-
-Example 3 (Safety Issue):
-Generate a safety DR for the wet floor in building B hallway. This is a high priority safety hazard that needs immediate resolution. Assign to facilities team."
-                                  style="resize: vertical;"
-                                  required></textarea>
+                        <input
+                            type="file"
+                            class="form-control form-control-lg"
+                            id="htmlFile"
+                            name="html_file"
+                            accept=".html,.htm"
+                            required
+                        >
                         <div class="form-text">
-                            Character count: <span id="char-count">0</span> |
-                            Maximum: 10,000 characters
+                            <i class="bi bi-info-circle"></i>
+                            Accepted formats: .html, .htm | Maximum size: 5MB
+                        </div>
+                    </div>
+
+                    <!-- File Info Display -->
+                    <div id="fileInfo" class="alert alert-light border mb-4" style="display: none;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-file-earmark-check text-success me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <strong id="fileName"></strong><br>
+                                <small class="text-muted"><span id="fileSize"></span></small>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-warning btn-lg text-dark fw-bold" id="submit-btn">
-                            <i class="bi bi-robot"></i> Generate DR Entries with AI
+                        <button type="submit" class="btn btn-warning btn-lg text-dark fw-bold" id="submitBtn">
+                            <i class="bi bi-play-circle"></i> Process Daily Report
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
 
-        <!-- DR Field Explanation -->
-        <div class="card mt-4 border-warning">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="bi bi-list-check"></i> DR Entry Fields
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-warning">
-                            <i class="bi bi-check-circle"></i> Required Fields
-                        </h6>
-                        <ul class="small">
-                            <li><strong>ID:</strong> Unique identifier (DR-001, DR-002, etc.)</li>
-                            <li><strong>Title:</strong> Brief, descriptive title</li>
-                            <li><strong>Description:</strong> Detailed issue description</li>
-                            <li><strong>Category:</strong> Technical, Process, Safety, Documentation, Quality, Other</li>
-                            <li><strong>Priority:</strong> High, Medium, or Low</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="fw-bold text-warning">
-                            <i class="bi bi-info-circle"></i> Optional Fields
-                        </h6>
-                        <ul class="small">
-                            <li><strong>Status:</strong> Open, In Progress, Resolved, Closed</li>
-                            <li><strong>Assigned To:</strong> Person or team responsible</li>
-                            <li><strong>Created Date:</strong> When the DR was created</li>
-                            <li><strong>Due Date:</strong> Expected resolution date</li>
-                            <li><strong>Resolution:</strong> How it was resolved (if applicable)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Example Prompts -->
-        <div class="card mt-4 border-info">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-lightbulb"></i> Example Prompts
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="accordion" id="examplesAccordion">
-                    <!-- Example 1 -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#example1">
-                                <i class="bi bi-1-circle text-primary me-2"></i>
-                                Multiple Safety Issues
-                            </button>
-                        </h2>
-                        <div id="example1" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
-                            <div class="accordion-body">
-                                <code class="d-block p-2 bg-light">
-Create 3 safety DRs:
-1. Broken emergency exit light in Building A, 2nd floor - High priority
-2. Missing fire extinguisher in Lab 3 - High priority
-3. Cracked window pane in Office 205 - Medium priority
-
-All should be assigned to the Facilities team and need resolution within 7 days.
-                                </code>
-                                <button class="btn btn-sm btn-outline-primary mt-2"
-                                        onclick="useExample(this.previousElementSibling.textContent.trim())">
-                                    <i class="bi bi-arrow-up-circle"></i> Use This Example
-                                </button>
+                <!-- Processing Status (Hidden by default) -->
+                <div id="processingStatus" class="mt-4" style="display: none;">
+                    <div class="card border-primary">
+                        <div class="card-body text-center">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Example 2 -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#example2">
-                                <i class="bi bi-2-circle text-success me-2"></i>
-                                Technical Issue
-                            </button>
-                        </h2>
-                        <div id="example2" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
-                            <div class="accordion-body">
-                                <code class="d-block p-2 bg-light">
-Create a high-priority technical DR for the database performance issue.
-The main production database is experiencing slow query times (>5 seconds)
-affecting user experience. This started on Dec 10th and needs immediate
-investigation by the Database team. Target resolution within 3 days.
-                                </code>
-                                <button class="btn btn-sm btn-outline-success mt-2"
-                                        onclick="useExample(this.previousElementSibling.textContent.trim())">
-                                    <i class="bi bi-arrow-up-circle"></i> Use This Example
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Example 3 -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#example3">
-                                <i class="bi bi-3-circle text-warning me-2"></i>
-                                Documentation Updates
-                            </button>
-                        </h2>
-                        <div id="example3" class="accordion-collapse collapse" data-bs-parent="#examplesAccordion">
-                            <div class="accordion-body">
-                                <code class="d-block p-2 bg-light">
-Generate 2 documentation DRs:
-1. API documentation is outdated - missing endpoints added in v2.5 release
-2. User manual has incorrect screenshots from old UI
-
-Both are medium priority and should be assigned to the Technical Writing team.
-                                </code>
-                                <button class="btn btn-sm btn-outline-warning mt-2"
-                                        onclick="useExample(this.previousElementSibling.textContent.trim())">
-                                    <i class="bi bi-arrow-up-circle"></i> Use This Example
-                                </button>
+                            <h5 class="card-title" id="statusText">Sanitizing HTML...</h5>
+                            <p class="card-text text-muted">Please wait while we process your file</p>
+                            <div class="progress mt-3" style="height: 25px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar"
+                                     id="progressBar"
+                                     style="width: 0%">0%</div>
                             </div>
                         </div>
                     </div>
@@ -221,26 +106,44 @@ Both are medium priority and should be assigned to the Technical Writing team.
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-md-3">
-                        <i class="bi bi-pencil-square text-warning" style="font-size: 2rem;"></i>
-                        <h6 class="mt-2 fw-bold">1. Describe DRs</h6>
-                        <p class="small text-muted">Write natural language description of discrepancies</p>
+                        <i class="bi bi-cloud-upload text-primary" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2 fw-bold">1. Upload HTML</h6>
+                        <p class="small text-muted">Upload Daily Report HTML file from your computer</p>
                     </div>
                     <div class="col-md-3">
-                        <i class="bi bi-robot text-primary" style="font-size: 2rem;"></i>
+                        <i class="bi bi-robot text-warning" style="font-size: 2rem;"></i>
                         <h6 class="mt-2 fw-bold">2. AI Processing</h6>
-                        <p class="small text-muted">GPT-4 extracts structured data from your description</p>
+                        <p class="small text-muted">GPT-4.1 extracts structured data from HTML</p>
                     </div>
                     <div class="col-md-3">
-                        <i class="bi bi-table text-success" style="font-size: 2rem;"></i>
-                        <h6 class="mt-2 fw-bold">3. Review Entries</h6>
-                        <p class="small text-muted">Preview generated DR entries in table format</p>
+                        <i class="bi bi-pencil-square text-success" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2 fw-bold">3. Edit Entries</h6>
+                        <p class="small text-muted">Review and edit extracted entries with searchable dropdowns</p>
                     </div>
                     <div class="col-md-3">
                         <i class="bi bi-download text-info" style="font-size: 2rem;"></i>
-                        <h6 class="mt-2 fw-bold">4. Export Data</h6>
-                        <p class="small text-muted">Download as CSV, JSON, or XLSX</p>
+                        <h6 class="mt-2 fw-bold">4. Export Excel</h6>
+                        <p class="small text-muted">Download .xlsm file with VBA macros</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Requirements Card -->
+        <div class="card mt-4 border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check"></i> File Requirements
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Format:</strong> HTML file from Daily Report email (.html or .htm)</li>
+                    <li><strong>Size:</strong> Maximum 5MB</li>
+                    <li><strong>Content:</strong> Must contain structured Daily Report sections (HOD, DME, INT, RPG)</li>
+                    <li><strong>Processing Time:</strong> Approximately 30-60 seconds depending on file size</li>
+                    <li><strong>Hazard Matching:</strong> Automatically matches hazards to canonical list (exact + fuzzy matching)</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -249,41 +152,173 @@ Both are medium priority and should be assigned to the Technical Writing team.
 
 {% block extra_js %}
 <script>
-    // Character counting
     (function() {
-        const textarea = document.getElementById('prompt');
-        const charCount = document.getElementById('char-count');
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('htmlFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const submitBtn = document.getElementById('submitBtn');
+        const processingStatus = document.getElementById('processingStatus');
+        const statusText = document.getElementById('statusText');
+        const progressBar = document.getElementById('progressBar');
 
-        function updateCount() {
-            charCount.textContent = textarea.value.length.toLocaleString();
+        // File selection handler
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
 
-            // Warn if approaching limit
-            if (textarea.value.length > 9000) {
-                charCount.parentElement.classList.add('text-warning');
-            } else {
-                charCount.parentElement.classList.remove('text-warning');
+                // Display file info
+                fileName.textContent = file.name;
+                const sizeKB = (file.size / 1024).toFixed(2);
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                fileSize.textContent = file.size < 1024 * 1024
+                    ? `${sizeKB} KB`
+                    : `${sizeMB} MB`;
+
+                fileInfo.style.display = 'block';
+
+                // Validate file size
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    OpsToolKit.showNotification('File is too large. Maximum size is 5MB.', 'danger', 5000);
+                    this.value = '';
+                    fileInfo.style.display = 'none';
+                    return;
+                }
+
+                // Validate file type
+                if (!file.name.toLowerCase().endsWith('.html') && !file.name.toLowerCase().endsWith('.htm')) {
+                    OpsToolKit.showNotification('Invalid file type. Please upload .html or .htm file.', 'danger', 5000);
+                    this.value = '';
+                    fileInfo.style.display = 'none';
+                    return;
+                }
+            }
+        });
+
+        // Form submission handler
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) {
+                OpsToolKit.showNotification('Please select a file to upload.', 'warning', 3000);
+                return;
             }
 
-            if (textarea.value.length > 10000) {
-                charCount.parentElement.classList.add('text-danger');
-                charCount.parentElement.classList.remove('text-warning');
-            }
-        }
+            // Disable form
+            submitBtn.disabled = true;
+            fileInput.disabled = true;
 
-        textarea.addEventListener('input', updateCount);
-        updateCount();
+            // Show processing status
+            processingStatus.style.display = 'block';
+            processingStatus.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Progress simulation
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 1;
+                if (progress <= 95) {
+                    progressBar.style.width = progress + '%';
+                    progressBar.textContent = progress + '%';
+                }
+            }, 800);
+
+            // Status messages
+            const statusMessages = [
+                { time: 0, text: 'Sanitizing HTML...' },
+                { time: 3000, text: 'Extracting data with AI (GPT-4.1)...' },
+                { time: 10000, text: 'Matching hazards to canonical list...' },
+                { time: 15000, text: 'Finalizing entries...' }
+            ];
+
+            statusMessages.forEach(msg => {
+                setTimeout(() => {
+                    statusText.textContent = msg.text;
+                }, msg.time);
+            });
+
+            try {
+                // Create form data
+                const formData = new FormData();
+                formData.append('html_file', file);
+
+                // Submit to backend
+                const response = await fetch('{{ url_for("dr_tracker.process") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Clear progress interval
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+
+                if (result.success) {
+                    // Success
+                    statusText.textContent = 'Processing complete!';
+                    OpsToolKit.showNotification(
+                        `Successfully processed ${result.entry_count} entries in ${result.processing_time.toFixed(1)}s`,
+                        'success',
+                        3000
+                    );
+
+                    // Redirect to editor
+                    setTimeout(() => {
+                        window.location.href = `/tools/dr-tracker/edit/${result.session_id}`;
+                    }, 1000);
+                } else {
+                    // Error
+                    clearInterval(progressInterval);
+                    statusText.textContent = 'Processing failed';
+                    progressBar.classList.remove('progress-bar-animated');
+                    progressBar.classList.add('bg-danger');
+
+                    OpsToolKit.showNotification(
+                        `Error: ${result.error}`,
+                        'danger',
+                        8000
+                    );
+
+                    // Re-enable form
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        fileInput.disabled = false;
+                        processingStatus.style.display = 'none';
+                        progressBar.style.width = '0%';
+                        progressBar.classList.add('progress-bar-animated');
+                        progressBar.classList.remove('bg-danger');
+                    }, 3000);
+                }
+            } catch (error) {
+                // Network or other error
+                clearInterval(progressInterval);
+                console.error('Error:', error);
+
+                statusText.textContent = 'Upload failed';
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.add('bg-danger');
+
+                OpsToolKit.showNotification(
+                    `Upload error: ${error.message}`,
+                    'danger',
+                    8000
+                );
+
+                // Re-enable form
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    fileInput.disabled = false;
+                    processingStatus.style.display = 'none';
+                    progressBar.style.width = '0%';
+                    progressBar.classList.add('progress-bar-animated');
+                    progressBar.classList.remove('bg-danger');
+                }, 3000);
+            }
+        });
     })();
-
-    // Use example function
-    function useExample(text) {
-        document.getElementById('prompt').value = text;
-        document.getElementById('prompt').dispatchEvent(new Event('input'));
-
-        // Scroll to textarea
-        document.getElementById('prompt').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Show success message
-        OpsToolKit.showNotification('Example loaded! You can edit it before generating.', 'success', 3000);
-    }
 </script>
 {% endblock %}

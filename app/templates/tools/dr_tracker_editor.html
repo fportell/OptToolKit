@@ -1,0 +1,800 @@
+{% extends "base.html" %}
+
+{% block title %}Edit DR Entries - OpsToolKit{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Table styling */
+    .entries-table {
+        font-size: 0.9rem;
+    }
+
+    .entries-table th {
+        position: sticky;
+        top: 0;
+        background-color: #212529 !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        z-index: 10;
+    }
+
+    /* Ensure thead background is also dark */
+    .entries-table thead {
+        background-color: #212529 !important;
+    }
+
+    .entries-table td {
+        vertical-align: middle;
+    }
+
+    /* Inline editable fields */
+    .inline-edit {
+        border: 1px dashed #ccc;
+        padding: 2px 4px;
+        min-width: 60px;
+        cursor: text;
+    }
+
+    .inline-edit:hover {
+        background-color: #f8f9fa;
+    }
+
+    .inline-edit:focus {
+        outline: 2px solid #0d6efd;
+        background-color: #fff;
+    }
+
+    /* Badge styling */
+    .hazard-badge, .program-badge {
+        display: inline-block;
+        margin: 2px;
+    }
+
+    /* Modal search styling */
+    .checkbox-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 0.75rem;
+        background-color: #fff;
+    }
+
+    .checkbox-item {
+        padding: 0.6rem 0.75rem 0.6rem 1.25rem !important;
+        margin-bottom: 0.5rem !important;
+        border-radius: 0.25rem;
+        transition: background-color 0.15s;
+        min-height: 36px;
+    }
+
+    .checkbox-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .checkbox-item .form-check-input {
+        margin-top: 0.15rem;
+        cursor: pointer;
+    }
+
+    .checkbox-item .form-check-label {
+        padding-left: 0.5rem;
+        cursor: pointer;
+        line-height: 1.5;
+    }
+
+    /* Table container - no scroll, show all entries */
+    .table-scroll {
+        position: relative;
+    }
+
+    /* Reference links */
+    .ref-link {
+        font-size: 0.85rem;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-pencil-square text-success"></i>
+                    Edit DR Entries
+                </h2>
+                <p class="text-muted mb-0">
+                    Review and edit extracted entries | Session: <code>{{ session_id[:8] }}</code>
+                </p>
+            </div>
+            <div>
+                <a href="{{ url_for('dr_tracker.index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> New Upload
+                </a>
+                <button id="downloadBtn" class="btn btn-success">
+                    <i class="bi bi-download"></i> Download Excel
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <i class="bi bi-list-ol text-primary" style="font-size: 2rem;"></i>
+                        <h3 class="mt-2 mb-0">{{ entries|length }}</h3>
+                        <p class="text-muted mb-0 small">Total Entries</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark text-warning" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2 mb-0 text-truncate">
+                            <a href="{{ url_for('dr_tracker.view_source', session_id=session_id) }}"
+                               target="_blank"
+                               class="text-decoration-none text-warning"
+                               title="Open original HTML file in new tab">
+                                {{ filename }}
+                                <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem;"></i>
+                            </a>
+                        </h6>
+                        <p class="text-muted mb-0 small">Source File</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <i class="bi bi-robot text-info" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2 mb-0">{{ metadata.model }}</h6>
+                        <p class="text-muted mb-0 small">AI Model</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <i class="bi bi-stopwatch text-success" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0">{{ "%.1f"|format(metadata.processing_time) }}s</h5>
+                        <p class="text-muted mb-0 small">Processing Time</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Alert -->
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Editing Instructions:</strong>
+            Click on ENTRY_# to edit inline |
+            Click <i class="bi bi-pencil text-primary"></i> buttons to select HAZARD or PROGRAM_AREAS |
+            All changes are saved automatically
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Entries Table -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-table"></i> Extracted Entries
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-scroll">
+                    <table class="table table-hover table-bordered entries-table mb-0">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 80px;">ENTRY_#</th>
+                                <th style="min-width: 200px;">HAZARD</th>
+                                <th style="min-width: 100px;">DATE</th>
+                                <th style="min-width: 150px;">LOCATION</th>
+                                <th style="min-width: 300px;">SUMMARY</th>
+                                <th style="min-width: 150px;">REFERENCES</th>
+                                <th style="min-width: 80px;">SECTION</th>
+                                <th style="min-width: 200px;">PROGRAM_AREAS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entriesTableBody">
+                            {% for entry in entries %}
+                            <tr data-index="{{ loop.index0 }}">
+                                <!-- Entry Number (Inline Editable) -->
+                                <td>
+                                    <input type="text"
+                                           class="form-control form-control-sm inline-edit"
+                                           value="{{ entry.entry_number }}"
+                                           data-field="entry_number"
+                                           data-index="{{ loop.index0 }}">
+                                </td>
+
+                                <!-- Hazard (Click to edit) -->
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="flex-grow-1">
+                                            <span class="hazard-display" data-index="{{ loop.index0 }}">
+                                                {% if entry.hazard_list %}
+                                                    {% for hazard in entry.hazard_list %}
+                                                        <span class="badge bg-warning text-dark hazard-badge">{{ hazard }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="text-muted">(None)</span>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary edit-hazard ms-2"
+                                                data-index="{{ loop.index0 }}"
+                                                title="Edit hazards">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </div>
+                                </td>
+
+                                <!-- Date -->
+                                <td>
+                                    <small>{{ entry.report_date }}</small>
+                                </td>
+
+                                <!-- Reported Location -->
+                                <td>
+                                    <strong>{{ entry.reported_location }}</strong>
+                                    {% if entry.cited_locations %}
+                                        <br><small class="text-muted">Cited: {{ entry.cited_locations|join(', ') }}</small>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Summary -->
+                                <td>
+                                    {% if entry.summary_title %}
+                                        <strong>{{ entry.summary_title }}:</strong>
+                                    {% endif %}
+                                    {% if entry.is_update %}
+                                        <span class="badge bg-info">Update</span>
+                                    {% endif %}
+                                    <small>{{ entry.summary|safe }}</small>
+                                </td>
+
+                                <!-- References -->
+                                <td>
+                                    {% for ref in entry.references %}
+                                        <a href="{{ ref[0] }}" target="_blank" class="ref-link" title="{{ ref[1] }}">
+                                            <i class="bi bi-link-45deg"></i> {{ ref[1] }}
+                                        </a>
+                                    {% endfor %}
+                                </td>
+
+                                <!-- Section -->
+                                <td>
+                                    <span class="badge bg-secondary">{{ entry.report_section|upper }}</span>
+                                </td>
+
+                                <!-- Program Areas (Click to edit) -->
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="flex-grow-1">
+                                            <span class="program-display" data-index="{{ loop.index0 }}">
+                                                {% if entry.program_areas %}
+                                                    {% for area in entry.program_areas %}
+                                                        <span class="badge bg-success program-badge program-area-badge"
+                                                              data-acronym="{{ area }}"
+                                                              data-bs-toggle="tooltip"
+                                                              data-bs-placement="top"
+                                                              style="cursor: help;">{{ area }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="text-muted">(None)</span>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-success edit-program ms-2"
+                                                data-index="{{ loop.index0 }}"
+                                                title="Edit program areas">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small>
+                    <i class="bi bi-info-circle"></i>
+                    Scroll horizontally to see all columns | Changes are auto-saved
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HAZARD Selection Modal -->
+<div class="modal fade" id="hazardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="bi bi-biohazard"></i> Select Hazards
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Input (Geolocation-style) -->
+                <div class="mb-3">
+                    <label for="searchHazard" class="form-label fw-bold">
+                        <i class="bi bi-search"></i> Search Hazards
+                    </label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           id="searchHazard"
+                           placeholder="Type to filter hazards..."
+                           autocomplete="off">
+                    <div class="form-text">
+                        <i class="bi bi-lightbulb"></i>
+                        Start typing to quickly find hazards.
+                        <span class="fw-bold" id="hazardMatchCount">{{ hazards|length }} hazards</span>
+                    </div>
+                </div>
+
+                <!-- Selection Summary (Geolocation-style) -->
+                <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3">
+                    <span>
+                        <i class="bi bi-check2-square text-primary"></i>
+                        <strong id="hazardSelectionCount">0 hazards selected</strong>
+                    </span>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary" id="selectAllVisibleHazards">
+                            <i class="bi bi-check-all"></i> Select All Visible
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="clearAllHazards">
+                            <i class="bi bi-x-circle"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hazard Checkboxes -->
+                <div class="checkbox-container" id="hazardCheckboxes">
+                    {% for hazard in hazards %}
+                    <div class="form-check checkbox-item hazard-checkbox-item"
+                         data-hazard="{{ hazard.display_name|lower }}"
+                         data-variants="{{ hazard.variants|join(',')|lower if hazard.variants else '' }}"
+                         data-parent="{{ hazard.parent|lower if hazard.parent else '' }}">
+                        <input class="form-check-input hazard-checkbox"
+                               type="checkbox"
+                               value="{{ hazard.display_name }}"
+                               id="hazard-{{ loop.index }}">
+                        <label class="form-check-label" for="hazard-{{ loop.index }}">
+                            {{ hazard.display_name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- No Results Message -->
+                <div id="noHazardResults" class="alert alert-warning mt-3" style="display: none;">
+                    <i class="bi bi-search"></i> No hazards match your search
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="saveHazards">
+                    <i class="bi bi-check-lg"></i> Save Hazards
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PROGRAM_AREAS Selection Modal -->
+<div class="modal fade" id="programModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-bookmarks"></i> Select Program Areas
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Input (Geolocation-style) -->
+                <div class="mb-3">
+                    <label for="searchProgram" class="form-label fw-bold">
+                        <i class="bi bi-search"></i> Search Program Areas
+                    </label>
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           id="searchProgram"
+                           placeholder="Type to filter program areas..."
+                           autocomplete="off">
+                    <div class="form-text">
+                        <i class="bi bi-lightbulb"></i>
+                        Search by acronym or full name.
+                        <span class="fw-bold" id="programMatchCount">{{ program_areas|length }} program areas</span>
+                    </div>
+                </div>
+
+                <!-- Selection Summary (Geolocation-style) -->
+                <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3">
+                    <span>
+                        <i class="bi bi-check2-square text-success"></i>
+                        <strong id="programSelectionCount">0 program areas selected</strong>
+                    </span>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-success" id="selectAllVisiblePrograms">
+                            <i class="bi bi-check-all"></i> Select All Visible
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="clearAllPrograms">
+                            <i class="bi bi-x-circle"></i> Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Program Area Checkboxes -->
+                <div class="checkbox-container" id="programCheckboxes">
+                    {% for area in program_areas %}
+                    <div class="form-check checkbox-item program-checkbox-item"
+                         data-program="{{ area.acronym|lower }}"
+                         data-name="{{ area.name|lower }}"
+                         data-keywords="{{ area.keywords|join(',')|lower if area.keywords else '' }}">
+                        <input class="form-check-input program-checkbox"
+                               type="checkbox"
+                               value="{{ area.acronym }}"
+                               id="program-{{ loop.index }}">
+                        <label class="form-check-label" for="program-{{ loop.index }}">
+                            <strong>{{ area.acronym }}</strong> - {{ area.name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- No Results Message -->
+                <div id="noProgramResults" class="alert alert-warning mt-3" style="display: none;">
+                    <i class="bi bi-search"></i> No program areas match your search
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="savePrograms">
+                    <i class="bi bi-check-lg"></i> Save Program Areas
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const sessionId = '{{ session_id }}';
+    let currentEditingIndex = null;
+    let entriesData = {{ entries|tojson }};
+
+    // ========================
+    // Program Area Mandate Mapping
+    // ========================
+    const programAreaMandates = {
+        {% for area in program_areas %}
+        '{{ area.acronym }}': '{{ area.name }}: {{ area.mandate|replace("'", "\\'") }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Initialize tooltips for program area badges
+    function initializeProgramTooltips() {
+        document.querySelectorAll('.program-area-badge').forEach(badge => {
+            // Dispose of existing tooltip if any
+            const existingTooltip = bootstrap.Tooltip.getInstance(badge);
+            if (existingTooltip) {
+                existingTooltip.dispose();
+            }
+
+            const acronym = badge.dataset.acronym;
+            const mandate = programAreaMandates[acronym];
+            if (mandate) {
+                badge.setAttribute('data-bs-title', mandate);
+                // Initialize Bootstrap tooltip
+                new bootstrap.Tooltip(badge);
+            }
+        });
+    }
+
+    // Initialize tooltips on page load
+    initializeProgramTooltips();
+
+    // ========================
+    // Inline Entry Number Editing
+    // ========================
+    document.querySelectorAll('.inline-edit').forEach(input => {
+        input.addEventListener('change', async function() {
+            const index = parseInt(this.dataset.index);
+            const field = this.dataset.field;
+            const newValue = this.value.trim();
+
+            if (!newValue) {
+                OpsToolKit.showNotification('Entry number cannot be empty', 'warning', 3000);
+                this.value = entriesData[index][field];
+                return;
+            }
+
+            // Update local data
+            entriesData[index][field] = newValue;
+
+            // Save to backend
+            await updateEntry(index, entriesData[index]);
+        });
+    });
+
+    // ========================
+    // HAZARD Modal
+    // ========================
+    const hazardModal = new bootstrap.Modal(document.getElementById('hazardModal'));
+    const searchHazard = document.getElementById('searchHazard');
+    const hazardCheckboxes = document.querySelectorAll('.hazard-checkbox');
+    const hazardCheckboxItems = document.querySelectorAll('.hazard-checkbox-item');
+    const hazardMatchCount = document.getElementById('hazardMatchCount');
+    const hazardSelectionCount = document.getElementById('hazardSelectionCount');
+    const noHazardResults = document.getElementById('noHazardResults');
+
+    // Open hazard modal
+    document.querySelectorAll('.edit-hazard').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentEditingIndex = parseInt(this.dataset.index);
+            const currentHazards = entriesData[currentEditingIndex].hazard_list || [];
+
+            // Clear and pre-select checkboxes
+            hazardCheckboxes.forEach(cb => {
+                cb.checked = currentHazards.includes(cb.value);
+            });
+
+            // Clear search
+            searchHazard.value = '';
+            filterHazards('');
+
+            updateHazardSelectionCount();
+            hazardModal.show();
+        });
+    });
+
+    // Hazard search (Geolocation-style)
+    searchHazard.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        filterHazards(query);
+    });
+
+    function filterHazards(query) {
+        let visibleCount = 0;
+
+        hazardCheckboxItems.forEach(item => {
+            const hazardName = item.dataset.hazard;
+            const variants = item.dataset.variants;
+
+            // Search in both canonical name and variants
+            if (hazardName.includes(query) || variants.includes(query)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        hazardMatchCount.textContent = `${visibleCount} hazards`;
+        noHazardResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // Select All Visible Hazards
+    document.getElementById('selectAllVisibleHazards').addEventListener('click', () => {
+        hazardCheckboxItems.forEach(item => {
+            if (item.style.display !== 'none') {
+                const checkbox = item.querySelector('.hazard-checkbox');
+                checkbox.checked = true;
+            }
+        });
+        updateHazardSelectionCount();
+    });
+
+    // Clear All Hazards
+    document.getElementById('clearAllHazards').addEventListener('click', () => {
+        hazardCheckboxes.forEach(cb => cb.checked = false);
+        updateHazardSelectionCount();
+    });
+
+    // Update hazard selection count
+    hazardCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateHazardSelectionCount);
+    });
+
+    function updateHazardSelectionCount() {
+        const count = Array.from(hazardCheckboxes).filter(cb => cb.checked).length;
+        hazardSelectionCount.textContent = `${count} hazard${count !== 1 ? 's' : ''} selected`;
+    }
+
+    // Save hazards
+    document.getElementById('saveHazards').addEventListener('click', async () => {
+        const selected = Array.from(hazardCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+        // Update local data
+        entriesData[currentEditingIndex].hazard_list = selected;
+
+        // Update display
+        const display = document.querySelector(`.hazard-display[data-index="${currentEditingIndex}"]`);
+        if (selected.length > 0) {
+            display.innerHTML = selected.map(h =>
+                `<span class="badge bg-warning text-dark hazard-badge">${h}</span>`
+            ).join('');
+        } else {
+            display.innerHTML = '<span class="text-muted">(None)</span>';
+        }
+
+        // Save to backend
+        await updateEntry(currentEditingIndex, entriesData[currentEditingIndex]);
+
+        hazardModal.hide();
+        OpsToolKit.showNotification('Hazards updated successfully', 'success', 2000);
+    });
+
+    // ========================
+    // PROGRAM_AREAS Modal
+    // ========================
+    const programModal = new bootstrap.Modal(document.getElementById('programModal'));
+    const searchProgram = document.getElementById('searchProgram');
+    const programCheckboxes = document.querySelectorAll('.program-checkbox');
+    const programCheckboxItems = document.querySelectorAll('.program-checkbox-item');
+    const programMatchCount = document.getElementById('programMatchCount');
+    const programSelectionCount = document.getElementById('programSelectionCount');
+    const noProgramResults = document.getElementById('noProgramResults');
+
+    // Open program modal
+    document.querySelectorAll('.edit-program').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentEditingIndex = parseInt(this.dataset.index);
+            const currentPrograms = entriesData[currentEditingIndex].program_areas || [];
+
+            // Clear and pre-select checkboxes
+            programCheckboxes.forEach(cb => {
+                cb.checked = currentPrograms.includes(cb.value);
+            });
+
+            // Clear search
+            searchProgram.value = '';
+            filterPrograms('');
+
+            updateProgramSelectionCount();
+            programModal.show();
+        });
+    });
+
+    // Program search (Geolocation-style)
+    searchProgram.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        filterPrograms(query);
+    });
+
+    function filterPrograms(query) {
+        let visibleCount = 0;
+
+        programCheckboxItems.forEach(item => {
+            const acronym = item.dataset.program;
+            const name = item.dataset.name;
+            const keywords = item.dataset.keywords;
+            if (acronym.includes(query) || name.includes(query) || keywords.includes(query)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        programMatchCount.textContent = `${visibleCount} program areas`;
+        noProgramResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // Select All Visible Programs
+    document.getElementById('selectAllVisiblePrograms').addEventListener('click', () => {
+        programCheckboxItems.forEach(item => {
+            if (item.style.display !== 'none') {
+                const checkbox = item.querySelector('.program-checkbox');
+                checkbox.checked = true;
+            }
+        });
+        updateProgramSelectionCount();
+    });
+
+    // Clear All Programs
+    document.getElementById('clearAllPrograms').addEventListener('click', () => {
+        programCheckboxes.forEach(cb => cb.checked = false);
+        updateProgramSelectionCount();
+    });
+
+    // Update program selection count
+    programCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateProgramSelectionCount);
+    });
+
+    function updateProgramSelectionCount() {
+        const count = Array.from(programCheckboxes).filter(cb => cb.checked).length;
+        programSelectionCount.textContent = `${count} program area${count !== 1 ? 's' : ''} selected`;
+    }
+
+    // Save programs
+    document.getElementById('savePrograms').addEventListener('click', async () => {
+        const selected = Array.from(programCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+        // Update local data
+        entriesData[currentEditingIndex].program_areas = selected;
+
+        // Update display
+        const display = document.querySelector(`.program-display[data-index="${currentEditingIndex}"]`);
+        if (selected.length > 0) {
+            display.innerHTML = selected.map(p =>
+                `<span class="badge bg-success program-badge program-area-badge"
+                       data-acronym="${p}"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="top"
+                       style="cursor: help;">${p}</span>`
+            ).join('');
+        } else {
+            display.innerHTML = '<span class="text-muted">(None)</span>';
+        }
+
+        // Reinitialize tooltips for newly created badges
+        initializeProgramTooltips();
+
+        // Save to backend
+        await updateEntry(currentEditingIndex, entriesData[currentEditingIndex]);
+
+        programModal.hide();
+        OpsToolKit.showNotification('Program areas updated successfully', 'success', 2000);
+    });
+
+    // ========================
+    // Backend Updates
+    // ========================
+    async function updateEntry(index, entry) {
+        try {
+            const response = await fetch(`/tools/dr-tracker/api/update/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    index: index,
+                    entry: entry
+                })
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+                console.error('Update failed:', result.error);
+                OpsToolKit.showNotification('Failed to save changes', 'danger', 3000);
+            }
+        } catch (error) {
+            console.error('Error updating entry:', error);
+            OpsToolKit.showNotification('Error saving changes', 'danger', 3000);
+        }
+    }
+
+    // ========================
+    // Download Excel
+    // ========================
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        window.location.href = `/tools/dr-tracker/download/${sessionId}`;
+        OpsToolKit.showNotification('Generating Excel file...', 'info', 3000);
+    });
+
+})();
+</script>
+{% endblock %}

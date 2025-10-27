@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Backup & Restore - RSS Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-archive text-info"></i>
+                    Backup & Restore
+                </h2>
+                <p class="text-muted mb-0">
+                    Create backups and restore deleted subscriptions
+                </p>
+            </div>
+            <a href="{{ url_for('rss_manager.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Backup Actions -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-cloud-download"></i> Create Backup
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    Create a manual JSON backup of all active subscriptions. This backup includes all subscription data and can be used for manual restoration or migration.
+                </p>
+                <form method="POST" action="{{ url_for('rss_manager.create_backup') }}">
+                    <button type="submit" class="btn btn-info">
+                        <i class="bi bi-download"></i> Download JSON Backup
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Deleted Subscriptions -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-trash"></i> Deleted Subscriptions
+                    <span class="badge bg-white text-warning ms-2">{{ deleted_subscriptions|length }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if deleted_subscriptions %}
+                <p class="text-muted mb-3">
+                    These subscriptions have been deleted but can be restored. Click the restore button to add them back to your active subscriptions.
+                </p>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Title</th>
+                                <th>RSS Feed URL</th>
+                                <th>Language</th>
+                                <th>Country</th>
+                                <th>Type</th>
+                                <th>Deleted At</th>
+                                <th style="width: 100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for deleted in deleted_subscriptions %}
+                            <tr>
+                                <td>
+                                    <strong>{{ deleted.title }}</strong>
+                                    {% if deleted.html_url %}
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-globe"></i>
+                                        <a href="{{ deleted.html_url }}" target="_blank" class="text-decoration-none">
+                                            {{ deleted.html_url[:40] }}{% if deleted.html_url|length > 40 %}...{% endif %}
+                                        </a>
+                                    </small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>
+                                        <a href="{{ deleted.xml_url }}" target="_blank" class="text-decoration-none">
+                                            {{ deleted.xml_url[:50] }}{% if deleted.xml_url|length > 50 %}...{% endif %}
+                                        </a>
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ deleted.language|upper }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ deleted.country }}</span>
+                                    {% if deleted.subdivision and deleted.subdivision not in ['N/A', 'NAT'] %}
+                                    <br><small class="text-muted">{{ deleted.subdivision }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ deleted.type }}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ deleted.deleted_at }}</small>
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('rss_manager.restore_subscription', deleted_id=deleted.id) }}" style="display: inline;">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-success"
+                                                title="Restore this subscription"
+                                                onclick="return confirm('Restore subscription &quot;{{ deleted.title|e }}&quot;?');">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% else %}
+                <!-- No Deleted Subscriptions -->
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle"></i>
+                    <strong>No deleted subscriptions.</strong>
+                    All your subscriptions are active. When you delete subscriptions, they will appear here and can be restored.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="card border-info mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-info-circle"></i> About Backup & Restore
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Soft Deletes:</strong></p>
+                <p class="mb-3">
+                    When you delete a subscription, it's not permanently removed. Instead, it's moved to a backup table where you can restore it at any time.
+                </p>
+                <p class="mb-2"><strong>JSON Backups:</strong></p>
+                <p class="mb-3">
+                    Manual JSON backups contain all subscription data in a portable format. Use these for:
+                </p>
+                <ul class="mb-3">
+                    <li>Creating periodic backups of your subscription collection</li>
+                    <li>Migrating subscriptions to another instance</li>
+                    <li>Archiving your subscription history</li>
+                    <li>Offline access to subscription metadata</li>
+                </ul>
+                <p class="mb-2"><strong>Restore Process:</strong></p>
+                <p class="mb-0">
+                    Click the restore button next to any deleted subscription to add it back to your active subscriptions. The subscription will retain its original RSS ID, timestamps, and all metadata.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -30,6 +30,10 @@ pydantic==2.6.0
 # Fuzzy Matching
 fuzzywuzzy==0.18.0
 python-Levenshtein==0.25.0
+rapidfuzz==3.6.1  # For DR-Tracker hazard matching
+
+# Encoding Detection (for DR-Tracker HTML processing)
+chardet==5.2.0
 
 # HTTP Requests (for RSS proxy)
 requests==2.31.0

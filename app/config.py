@@ -65,8 +65,15 @@ class Config:
     MAX_UPLOAD_SIZE_MB = int(os.getenv('MAX_UPLOAD_SIZE_MB', '10'))
     MAX_CONTENT_LENGTH = MAX_UPLOAD_SIZE_MB * 1024 * 1024  # Flask expects bytes
 
-    # DR-Tracker timeout (in seconds)
-    DR_TRACKER_TIMEOUT_SECONDS = int(os.getenv('DR_TRACKER_TIMEOUT_SECONDS', '120'))  # 2 minutes
+    # DR-Tracker configuration (Daily Report processing)
+    DR_TRACKER_TIMEOUT = int(os.getenv('DR_TRACKER_TIMEOUT', '120'))  # OpenAI timeout in seconds
+    DR_TRACKER_MAX_FILE_SIZE = int(os.getenv('DR_TRACKER_MAX_FILE_SIZE', str(5 * 1024 * 1024)))  # 5MB max
+    DR_TRACKER_VBA_PATH = os.getenv('DR_TRACKER_VBA_PATH', 'app/data/dr_tracker/vbaProject.bin')
+    DR_TRACKER_SESSION_TIMEOUT = int(os.getenv('DR_TRACKER_SESSION_TIMEOUT', '7200'))  # 2 hours
+
+    # Chatbot upload configuration
+    CHATBOT_UPLOAD_TIMEOUT = int(os.getenv('CHATBOT_UPLOAD_TIMEOUT', '6000'))  # 10 minutes for large uploads
+    CHATBOT_BATCH_THRESHOLD = int(os.getenv('CHATBOT_BATCH_THRESHOLD', '2000'))  # Use batch API for 2000+ chunks (direct API can handle up to 2048 in one call)
 
     # =========================================================================
     # OpenAI Configuration (per FR-006, FR-008, FR-009)
@@ -91,20 +98,15 @@ class Config:
         'app/services/chatbot/data/DR_database_PBI.xlsx'
     )
 
-    DR_TRACKER_DATA_PATH = BASE_DIR / os.getenv(
-        'DR_TRACKER_DATA_PATH',
-        'app/services/dr_tracker/data/'
-    )
+    # DR-Tracker data files (hazards, program areas, VBA, preprompt)
+    DR_TRACKER_DATA_DIR = BASE_DIR / 'app' / 'data' / 'dr_tracker'
 
     # =========================================================================
-    # RSS Manager Configuration (Node.js Express)
+    # RSS Manager Configuration (Integrated Python/Flask)
     # =========================================================================
-    RSS_MANAGER_PORT = int(os.getenv('RSS_MANAGER_PORT', '3001'))
-    RSS_MANAGER_URL = f"http://localhost:{RSS_MANAGER_PORT}"
-
     RSS_DATABASE_PATH = BASE_DIR / os.getenv(
         'RSS_DATABASE_PATH',
-        'legacy_code/rss-manager/database/rss_subscriptions.db'
+        'app/data/rss_subscriptions.db'
     )
 
     # =========================================================================

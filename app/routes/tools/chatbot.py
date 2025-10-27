@@ -1,19 +1,28 @@
 """
 DR Knowledge Chatbot Routes.
 
-Handles chat interface and message processing.
-Per FR-009: Interactive chatbot with natural language querying.
+Modern RAG implementation with rate limiting and upload support.
+Per chatbot_revised.md: 20 q/m rate limiting, all users can upload.
 """
 
 import logging
 import uuid
 from flask import Blueprint, render_template, request, jsonify, session
 from flask_login import login_required, current_user
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.utils import secure_filename
 
 from app.services.chatbot.chatbot_service import get_chatbot_service
 from app.concurrency_manager import get_openai_queue
 
 logger = logging.getLogger(__name__)
+
+# Initialize rate limiter
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 # Create blueprint
 chatbot_bp = Blueprint('chatbot', __name__, url_prefix='/tools/chatbot')
@@ -51,8 +60,23 @@ def index():
     logger.info(f"User {current_user.id} accessed chatbot")
 
     # Get service stats
-    service = get_chatbot_service()
-    stats = service.get_stats()
+    try:
+        service = get_chatbot_service()
+        logger.info(f"Service type: {type(service)}")
+        stats = service.get_stats()
+        logger.info(f"Stats retrieved: {stats}")
+    except Exception as e:
+        logger.error(f"Error getting stats: {e}", exc_info=True)
+        # Provide default stats if error
+        stats = {
+            'loaded': False,
+            'document_count': 0,
+            'chunk_count': 0,
+            'model_loaded': False,
+            'model_name': None,
+            'embedding_dimension': None,
+            'last_update': None
+        }
 
     # Get chat history
     history = get_user_chat_history()
@@ -66,6 +90,7 @@ def index():
 
 @chatbot_bp.route('/send', methods=['POST'])
 @login_required
+@limiter.limit("20/minute")  # 20 queries per minute rate limit
 def send_message():
     """
     Process chat message and return AI response.
@@ -122,8 +147,9 @@ def send_message():
                 result_holder['result'] = result
 
             # Enqueue and wait for result (synchronous for better UX)
+            # Increased timeout to 90s for complex queries that require analysis
             queue_request = queue.enqueue(request_id, process_chat)
-            queue.wait_for_request(request_id, timeout=30)
+            queue.wait_for_request(request_id, timeout=90)
 
             result = result_holder.get('result')
 
@@ -212,3 +238,125 @@ def get_history():
         'history': history,
         'count': len(history)
     })
+
+
+@chatbot_bp.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+    """
+    Upload new Excel database file.
+
+    GET: Show upload interface
+    POST: Process uploaded file
+
+    Returns:
+        GET: Rendered upload template
+        POST: JSON response with upload result
+    """
+    if request.method == 'GET':
+        # Get upload history
+        service = get_chatbot_service()
+        upload_history = service.update_service.get_upload_history(limit=10)
+
+        return render_template(
+            'tools/chatbot_upload.html',
+            upload_history=upload_history
+        )
+
+    # POST - process upload
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file provided'}), 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+
+        # Validate file extension
+        if not file.filename.endswith('.xlsx'):
+            return jsonify({'error': 'Only .xlsx files are allowed'}), 400
+
+        logger.info(f"User {current_user.id} uploading file: {file.filename}")
+
+        # Process upload
+        service = get_chatbot_service()
+        logger.info("Starting upload processing...")
+        result = service.update_service.process_upload(
+            excel_file=file,
+            uploaded_by=str(current_user.id)
+        )
+        logger.info(f"Upload processing completed. Success: {result.success}, Message: {result.message}")
+
+        if result.success:
+            logger.info(f"Upload successful: {result.version_id}, changes: {result.changes}")
+            return jsonify({
+                'success': True,
+                'message': result.message,
+                'version_id': result.version_id,
+                'changes': result.changes
+            })
+        else:
+            logger.error(f"Upload failed: {result.error}")
+            return jsonify({
+                'success': False,
+                'error': result.error
+            }), 500
+
+    except Exception as e:
+        logger.error(f"Error processing upload: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@chatbot_bp.route('/update-history', methods=['GET'])
+@login_required
+def update_history():
+    """
+    Get database update history.
+
+    Returns:
+        JSON response with update history
+    """
+    try:
+        service = get_chatbot_service()
+        history = service.update_service.get_upload_history(limit=20)
+
+        return jsonify({
+            'success': True,
+            'history': history,
+            'count': len(history)
+        })
+
+    except Exception as e:
+        logger.error(f"Error getting update history: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
+@chatbot_bp.route('/database-stats', methods=['GET'])
+@login_required
+def database_stats():
+    """
+    Get detailed database statistics.
+
+    Returns:
+        JSON response with statistics
+    """
+    try:
+        service = get_chatbot_service()
+        stats = service.get_stats()
+
+        # Get metadata stats
+        metadata_stats = service.metadata_service.get_statistics()
+
+        combined_stats = {
+            **stats,
+            'date_range': metadata_stats.get('date_range', {}),
+            'top_hazards': metadata_stats.get('top_hazards', []),
+            'top_locations': metadata_stats.get('top_locations', [])
+        }
+
+        return jsonify(combined_stats)
+
+    except Exception as e:
+        logger.error(f"Error getting database stats: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500

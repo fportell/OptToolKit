@@ -24,7 +24,7 @@
         <!-- Info Alert -->
         <div class="alert alert-info" role="alert">
             <i class="bi bi-info-circle-fill"></i>
-            <strong>Powered by OpenAI GPT-4</strong> |
+            <strong>Powered by OpenAI GPT-4.1</strong> |
             Supports up to ~12,500 words |
             Processing takes 10-30 seconds
         </div>
@@ -39,124 +39,57 @@
             <div class="card-body">
                 <form method="POST"
                       action="{{ url_for('summary_revision.revise') }}"
-                      enctype="multipart/form-data"
                       id="revision-form"
                       data-loading="true"
                       data-loading-message="AI is revising your text...">
 
-                    <!-- Text Input Tabs -->
-                    <ul class="nav nav-tabs mb-3" id="inputTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="type-tab" data-bs-toggle="tab"
-                                    data-bs-target="#type-tab-pane" type="button" role="tab">
-                                <i class="bi bi-keyboard"></i> Type Text
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="upload-tab" data-bs-toggle="tab"
-                                    data-bs-target="#upload-tab-pane" type="button" role="tab">
-                                <i class="bi bi-file-earmark-text"></i> Upload File
-                            </button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content" id="inputTabsContent">
-                        <!-- Type Text Tab -->
-                        <div class="tab-pane fade show active" id="type-tab-pane" role="tabpanel">
-                            <div class="mb-3">
-                                <label for="text_input" class="form-label fw-bold">
-                                    <i class="bi bi-text-paragraph"></i> Text to Revise
-                                </label>
-                                <textarea class="form-control font-monospace"
-                                          id="text_input"
-                                          name="text_input"
-                                          rows="12"
-                                          placeholder="Paste or type your text here...
+                    <!-- Text Input -->
+                    <div class="mb-3">
+                        <label for="text_input" class="form-label fw-bold">
+                            <i class="bi bi-text-paragraph"></i> Text to Revise
+                        </label>
+                        <textarea class="form-control"
+                                  id="text_input"
+                                  name="text_input"
+                                  rows="12"
+                                  placeholder="Paste or type your text here...
 
 Example:
 Our company is doing really good this year. We have been making a lot of progress on our products and our customers seems to be happy with what we've been doing. Sales is up and things are looking great for the future."
-                                          style="resize: vertical;"></textarea>
-                                <div class="form-text">
-                                    Character count: <span id="char-count">0</span> |
-                                    Word count: <span id="word-count">0</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Upload File Tab -->
-                        <div class="tab-pane fade" id="upload-tab-pane" role="tabpanel">
-                            <div class="mb-3">
-                                <label for="text_file" class="form-label fw-bold">
-                                    <i class="bi bi-file-earmark-arrow-up"></i> Upload Text File
-                                </label>
-                                <input type="file"
-                                       class="form-control"
-                                       id="text_file"
-                                       name="text_file"
-                                       accept=".txt,.md,.text">
-                                <div class="form-text">
-                                    Supported formats: TXT, MD • Max file size: {{ config.MAX_UPLOAD_SIZE_MB }} MB
-                                </div>
-                            </div>
+                                  style="resize: vertical;" required></textarea>
+                        <div class="form-text">
+                            Character count: <span id="char-count">0</span> |
+                            Word count: <span id="word-count">0</span>
                         </div>
                     </div>
 
-                    <!-- Revision Options -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h6 class="mb-0">
-                                <i class="bi bi-sliders"></i> Revision Options
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <!-- Revision Type -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="revision_type" class="form-label fw-bold">
-                                        <i class="bi bi-gear"></i> Revision Type
-                                    </label>
-                                    <select class="form-select" id="revision_type" name="revision_type" required>
-                                        {% for key, type_info in revision_types.items() %}
-                                        <option value="{{ key }}" {% if key == 'general' %}selected{% endif %}>
-                                            {{ type_info.name }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                    <div class="form-text" id="type-description">
-                                        Improve overall quality, grammar, and clarity
-                                    </div>
-                                </div>
+                    <!-- Model Selection -->
+                    <div class="mb-3">
+                        <label for="model_name" class="form-label fw-bold">
+                            <i class="bi bi-cpu"></i> Model Selection
+                        </label>
+                        <select class="form-select" id="model_name" name="model_name" required>
+                            {% for key, model_info in available_models.items() %}
+                            <option value="{{ key }}" {% if key == 'gpt-4.1' %}selected{% endif %}>
+                                {{ model_info.name }} - {{ model_info.description }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-                                <!-- Additional Options -->
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">
-                                        <i class="bi bi-check-square"></i> Additional Options
-                                    </label>
-                                    <div class="form-check">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               id="get_suggestions"
-                                               name="get_suggestions">
-                                        <label class="form-check-label" for="get_suggestions">
-                                            Get improvement suggestions
-                                        </label>
-                                        <div class="form-text">
-                                            Receive 3-5 specific suggestions for improving your text
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Custom Instructions -->
-                            <div class="mb-0">
-                                <label for="custom_instructions" class="form-label fw-bold">
-                                    <i class="bi bi-chat-left-text"></i> Custom Instructions (Optional)
-                                </label>
-                                <textarea class="form-control"
-                                          id="custom_instructions"
-                                          name="custom_instructions"
-                                          rows="2"
-                                          placeholder="Add any specific instructions for the revision (e.g., 'Keep technical terms', 'Use British English', 'Add more examples')"></textarea>
+                    <!-- Canadian English Option -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="use_canadian_english"
+                                   name="use_canadian_english"
+                                   checked>
+                            <label class="form-check-label" for="use_canadian_english">
+                                <strong>Use Canadian English spelling and grammar</strong>
+                            </label>
+                            <div class="form-text">
+                                Apply Canadian English conventions (e.g., 'colour' instead of 'color', 'centre' instead of 'center') and follow editorial guidelines for numbers, dates, and foreign words
                             </div>
                         </div>
                     </div>
@@ -171,21 +104,21 @@ Our company is doing really good this year. We have been making a lot of progres
             </div>
         </div>
 
-        <!-- Revision Types Info -->
+        <!-- Model Information -->
         <div class="card mt-4 border-success">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
-                    <i class="bi bi-info-circle"></i> Revision Types Explained
+                    <i class="bi bi-info-circle"></i> Available Models
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    {% for key, type_info in revision_types.items() %}
-                    <div class="col-md-4 mb-3">
+                    {% for key, model_info in available_models.items() %}
+                    <div class="col-md-6 mb-3">
                         <h6 class="fw-bold text-success">
-                            <i class="bi bi-check-circle"></i> {{ type_info.name }}
+                            <i class="bi bi-cpu"></i> {{ model_info.name }}
                         </h6>
-                        <p class="small mb-0">{{ type_info.description }}</p>
+                        <p class="small mb-0">{{ model_info.description }}</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -204,18 +137,18 @@ Our company is doing really good this year. We have been making a lot of progres
                     <div class="col-md-3">
                         <div class="text-center">
                             <i class="bi bi-pencil-square text-success" style="font-size: 2rem;"></i>
-                            <h6 class="mt-2 fw-bold">1. Enter Text</h6>
+                            <h6 class="mt-2 fw-bold">1. Paste Text</h6>
                             <p class="small text-muted">
-                                Type or upload your text that needs revision
+                                Paste or type your text that needs revision
                             </p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="text-center">
-                            <i class="bi bi-sliders text-primary" style="font-size: 2rem;"></i>
-                            <h6 class="mt-2 fw-bold">2. Choose Options</h6>
+                            <i class="bi bi-cpu text-primary" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2 fw-bold">2. Select Model</h6>
                             <p class="small text-muted">
-                                Select revision type and add custom instructions
+                                Choose GPT-4.1 or GPT-4.1-mini and language options
                             </p>
                         </div>
                     </div>
@@ -224,16 +157,16 @@ Our company is doing really good this year. We have been making a lot of progres
                             <i class="bi bi-robot text-warning" style="font-size: 2rem;"></i>
                             <h6 class="mt-2 fw-bold">3. AI Processing</h6>
                             <p class="small text-muted">
-                                GPT-4 analyzes and revises your text
+                                GPT-4.1 revises following editorial guidelines
                             </p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="text-center">
                             <i class="bi bi-file-earmark-check text-info" style="font-size: 2rem;"></i>
-                            <h6 class="mt-2 fw-bold">4. Review & Download</h6>
+                            <h6 class="mt-2 fw-bold">4. View Changes</h6>
                             <p class="small text-muted">
-                                Compare original and revised text side-by-side
+                                See highlighted additions (green) and deletions (red)
                             </p>
                         </div>
                     </div>
@@ -262,34 +195,6 @@ Our company is doing really good this year. We have been making a lot of progres
 
         textarea.addEventListener('input', updateCounts);
         updateCounts();
-    })();
-
-    // Update type description
-    (function() {
-        const revisionType = document.getElementById('revision_type');
-        const typeDescription = document.getElementById('type-description');
-
-        const descriptions = {
-            {% for key, type_info in revision_types.items() %}
-            '{{ key }}': '{{ type_info.description }}',
-            {% endfor %}
-        };
-
-        revisionType.addEventListener('change', function() {
-            typeDescription.textContent = descriptions[this.value] || '';
-        });
-    })();
-
-    // File upload handling
-    (function() {
-        const fileInput = document.getElementById('text_file');
-
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                const file = this.files[0];
-                console.log('File selected:', file.name, '(' + (file.size / 1024).toFixed(1) + ' KB)');
-            }
-        });
     })();
 </script>
 {% endblock %}

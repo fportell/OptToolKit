@@ -1,0 +1,263 @@
+"""
+Below it will be attached a HTML code form which I need you to extract some information following these rules:
+
+1. The HTML code has information on a report for which I need to extract the content in a structured form. Each entry of this report will be written in a dictionary with the following keys and respective data types:
+
+{
+    "report_date": String of the date as mm/dd/yyyy,
+	"report_section": String,
+	"entry_number": String,
+    "reported_location": string,
+    "is_update": Boolen (True/False),
+	"summary_title": String/Null,
+    "summary": String,
+    "references": List of list,
+    "cited_locations": String/Null
+}
+
+2. The date of the report is found in a paragraph tag with the following structure:
+	<p class=MsoNormal align=center style='margin-bottom:0cm;text-align:center;
+	line-height:normal;background:#D9D9D9'><b><span style='font-size:12.0pt;
+	font-family:"Arial",sans-serif;color:black'>March 7, 2025</span></b></p>
+
+In this example, the key "report_date" would receive "03/7/2025"
+
+
+3. The sections of the report are defined in paragraph tags such as there:
+
+	<p class=MsoNormal style='margin-bottom:0cm;text-align:justify;line-height:
+	normal;background:#5B9BD5'><b><span style='font-size:12.0pt;font-family:"Arial",sans-serif;
+	color:black'>Highlight of the Day</span></b></p>
+
+	<p class=MsoNormal style='margin-bottom:0cm;text-align:justify;line-height:
+	normal;background:#5B9BD5'><b><span style='font-size:12.0pt;font-family:"Arial",sans-serif;
+	color:black'>Domestic Events (Media &amp; Officials)</span></b></p>
+
+	<p class=MsoNormal style='margin-bottom:0cm;text-align:justify;line-height:
+	normal;background:#5B9BD5'><b><span style='font-size:12.0pt;font-family:"Arial",sans-serif;
+	color:black'>International Events (Media &amp; Officials)</span></b></p>
+
+	<p class=MsoNormal style='margin-bottom:0cm;text-align:justify;line-height:
+	normal;background:#5B9BD5'><b><span style='font-size:12.0pt;font-family:"Arial",sans-serif;
+	color:black'>Research, Policies and Guidelines (Media &amp; Officials)</span></b></p>
+
+The assignment of the key "report_section" will be coded as:
+
+	"Highlight of the Day" is coded as "hod"
+	"Domestic Events (Media &amp; Officials)" is coded as "dme"
+	"International Events (Media &amp; Officials)" is coded as "int"
+	"Research, Policies and Guidelines (Media &amp; Officials)" is coded as "rpg"
+
+The section "Highlight of the Day" ("hod") frequently does not have an entry (Nil). Do not include any JSON object when that is the case.
+
+4. If the paragraph tag has a similar structure as this code:
+
+<p class=MsoListParagraphCxSpFirst style='margin-top:0cm;margin-right:0cm;
+margin-bottom:0cm;margin-left:39.3pt;text-align:justify;text-indent:-18.0pt;
+line-height:normal'><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><b><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif;color:black'>Ontario: </span></b><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif;color:black'>As of March
+12, Toronto Public Health is investigating a <b>measles </b>case linked to Air
+Canada Flight AC 002 from Tokyo to Toronto on March 2. Passengers on the flight
+and individuals in Terminal 1 from approximately 1650 to 1940 may have been
+exposed. This marks the second recent measles exposure at Pearson International
+Airport, following a Korean Air flight from Seoul on February 22. (</span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="https://example.com/news1"><span
+style='font-size:10.0pt;color:#0563C1'>News Agency A</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif;color:black'>, </span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="https://example.com/news2"><span
+style='font-size:10.0pt;color:#0563C1'>Health Organization B</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif;color:black'>) </span></p>
+
+I need you to return a dictionary with the following structure given the example above:
+
+{
+    "report_date": "03/07/2025"
+	"report_section": "dme"
+	"entry_number": "1",
+    "reported_location": "Ontario",
+    "is_update": False,
+	"summary_title": Null,
+    "summary": "As of March 12, Toronto Public Health is investigating a <b>measles</b> case linked to Air Canada Flight AC 002 from Tokyo to Toronto on March 2. Passengers on the flight and individuals in Terminal 1 from approximately 1650 to 1940 may have been exposed. This marks the second recent measles exposure at Pearson International Airport, following a Korean Air flight from Seoul on February 22.",
+	"hazard_list": ["measles"],
+    "references": [
+        ["https://example.com/news1", "News Agency A"],
+        ["https://example.com/news2", "Health Organization B"]
+    ],
+    "cited_locations": Null
+}
+
+
+The key "hazard_list" should be a list as some entries have more than on hazard identified by the bold tag.
+
+IMPORTANT: In the "summary" field, preserve the original bold formatting from the HTML by keeping <b> tags around bolded text exactly as they appear in the source. For example, if the HTML shows "investigating a <b>measles</b> case", the summary should contain "investigating a <b>measles</b> case" with the bold tag intact. Only preserve the first occurrence of each bolded term as it appears in the original HTML.
+
+If "cited_locations" exists, it would be written in a separated paragraph tag, for instance:
+
+
+<p class=MsoNormal style='margin-top:0cm;margin-right:0cm;margin-bottom:0cm;
+margin-left:36.0pt;text-align:justify;line-height:normal'><b><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>Cited Locations:</span></b><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'> Belgium, Democratic
+Republic of Congo, France, Germany, South Africa, Uganda, United Kingdom, and
+United States.</span></p>
+
+The key "cited_locations" is a list that would contain all geolocations listed. Hence the values for "cited_locations" would be ["Belgium", "Democratic
+Republic of Congo", "France", "Germany", "South Africa", "Uganda", "United Kingdom", "United States"].
+
+
+
+There are instances in which the entry could be written within list item tags, and should be parsed as a paragraph, for instance:
+
+
+ <li class=MsoNormal style='color:#00B050;margin-bottom:0cm;text-align:justify;
+     line-height:normal'><b><span style='font-size:10.0pt;font-family:"Arial",sans-serif;
+     color:windowtext'>Uganda (Update):</span></b><span style='font-size:10.0pt;
+     font-family:"Arial",sans-serif;color:windowtext'> According to media
+     reports on March 7, 6 suspected cases of <b>Ebola </b>have been isolated at
+     Fort Portal Regional Referral Hospital in Uganda, awaiting test results
+     from samples sent to the Uganda Virus Research Institute following contact
+     with a person who died of Ebola in Ntoroko District. In response,
+     authorities in Fort Portal city and surrounding districts have ordered the
+     installation of hand-washing facilities, temperature screenings in public
+     places, and suspended school visitations for 1 month to reduce transmission.
+     (</span><span style='font-family:"Arial",sans-serif;color:#0563C1'><a
+     href="https://www.independent.co.ug/fort-portal-heightens-measures-to-curb-spread-of-ebola/"><span
+     style='font-size:10.0pt'>The Independent</span></a></span><span
+     style='font-size:10.0pt;font-family:"Arial",sans-serif;color:windowtext'>,
+     </span><span style='font-family:"Arial",sans-serif;color:#0563C1'><a
+     href="https://kaseseguideradio.com/6-ebola-suspected-patients-admitted-at-fort-portal-hospital/"><span
+     style='font-size:10.0pt'>Kasese Guide Radio</span></a></span><span
+     style='font-size:10.0pt;font-family:"Arial",sans-serif;color:windowtext'>)
+     </span></li>
+
+
+5. There are cases in which a single "reported_location" is attributed to multiple events, for instance
+	 
+	<p class=MsoListParagraphCxSpFirst style='margin-top:0cm;margin-right:0cm;
+margin-bottom:0cm;margin-left:39.3pt;text-align:justify;text-indent:-18.0pt;
+line-height:normal'><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><b><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>United States: </span></b></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0cm;text-align:justify;
+line-height:normal'><b><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-top:0cm;margin-right:0cm;
+margin-bottom:0cm;margin-left:71.7pt;text-align:justify;text-indent:-17.85pt;
+line-height:normal'><b><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>a.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></b><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>According to the New
+York State Department of Health, on March 11, a <b>measles</b><b> </b>case was
+identified in a patient aged less than 5 years residing in Suffolk County. The
+case was confirmed at the Wadsworth Laboratory of the Department in Albany and
+marks the third case of measles in New York in 2025 as well as the first case
+outside of New York City. Additionally, the case has no connection to other
+outbreaks in the US. The patient is currently being treated at the Cohen
+Children’s Medical Centre in Queens. As per the health officials, anyone who
+visited the pediatric emergency department at the medical centre from March 3
+to March 4 or visited an inpatient child on the Medicine 3 unit from March 3 to
+March 6 could have been potentially exposed. (</span><span style='font-family:
+"Arial",sans-serif;color:#0563C1'><a
+href="https://www.rochesterfirst.com/news/health/measles-case-confirmed-in-suffolk-county-marking-first-outside-new-york-city/"><span
+style='font-size:10.0pt;color:#0563C1'>Rochester First</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>, </span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="https://www.health.ny.gov/press/releases/2025/2025-03-11_measles.htm"><span
+style='font-size:10.0pt;color:#0563C1'>New York State Department of Health</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>) </span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-top:0cm;margin-right:0cm;
+margin-bottom:0cm;margin-left:71.7pt;text-align:justify;text-indent:-17.85pt;
+line-height:normal'><b><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-top:0cm;margin-right:0cm;
+margin-bottom:0cm;margin-left:71.7pt;text-align:justify;text-indent:-17.85pt;
+line-height:normal'><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>b.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>A Los Angeles County
+resident diagnosed with <b>measles </b>may have exposed others at Los Angeles
+International Airport Terminal B on March 5 between 1900 and 2240. The
+individual arrived via a China Airlines flight and visited a nail salon and
+grocery store while infectious. This marks the first measles case in Los
+Angeles County in 2025, following the last reported case in February 2024. (</span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="https://www.theepochtimes.com/us/los-angeles-county-confirms-first-2025-measles-case-issues-exposure-list-5824079"><span
+style='font-size:10.0pt;color:#0563C1'>The Epoch Times</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>, </span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="https://www.cidrap.umn.edu/measles/la-county-reports-first-measles-case-2025-lax-traveler-cases-confirmed-philadelphia-ny"><span
+style='font-size:10.0pt;color:#0563C1'>CIDRAP</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>, </span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="http://publichealth.lacounty.gov/phcommon/public/media/mediapubhpdetail.cfm?prid=4982"><span
+style='font-size:10.0pt;color:#0563C1'>County of Los Angeles Public Health</span></a></span><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>) </span></p>
+
+
+In this example, because I have 2 events for the same "reported_location", United States, both entries will receive the same value, but "entry_number" would be "3a" and "3b", respectively.
+
+
+3. Finally, the entries listed in the Research, Policies and Guidelines section of the HTML code would have the following format:
+
+<p class=MsoNormal style='margin-bottom:0cm;text-align:justify;line-height:
+normal;background:#5B9BD5'><b><span style='font-size:12.0pt;font-family:"Arial",sans-serif;
+color:black'>Research, Policies and Guidelines (Media &amp; Officials)</span></b></p>
+
+<p class=MsoNormal style='margin-bottom:0cm;text-align:justify;line-height:
+normal'><span style='font-size:10.0pt;font-family:"Arial",sans-serif'>&nbsp;</span></p>
+
+<ol style='margin-top:0cm' start=7 type=1>
+ <li class=MsoNormal style='margin-bottom:0cm;margin-bottom:0cm;margin-top:
+     0cm;text-align:justify;line-height:normal'><b><span style='font-size:10.0pt;
+     font-family:"Arial",sans-serif'>Prodrug activation in malaria parasites
+     mediated by an imported erythrocyte esterase, acylpeptide hydrolase
+     (APEH), United States</span></b></li>
+</ol>
+
+<p class=MsoNormal style='margin-top:0cm;margin-right:0cm;margin-bottom:0cm;
+margin-left:36.0pt;text-align:justify;line-height:normal'><span
+style='font-size:10.0pt;font-family:"Arial",sans-serif'>This study highlights
+advances in the treatment of <b>malaria</b>, with researchers discovering that
+modified forms of the antibiotic fosmidomycin, known as lipophilic diester
+prodrugs, have increased efficacy against malaria compared to the original
+drug. This improved efficacy is achieved through the prodrug approach, which
+involves chemical modification to enhance the absorption and distribution of
+the drug prior to conversion to its active form. The study identifies
+acylpeptide hydrolase, an enzyme found in human red blood cells, as the key
+activator of these prodrugs. Remarkably, the malaria parasite <i>Plasmodium
+falciparum</i> uses this human enzyme to activate the drug in itself. This
+finding suggests a potential reduction in drug resistance, as the activation
+relies on a human enzyme rather than the parasite's own, which is typically
+involved in resistance through mutations. The discovery offers new insights
+into the development of antimalarial treatments that are less prone to
+resistance, thereby improving treatment efficacy. (</span><span
+style='font-family:"Arial",sans-serif;color:#0563C1'><a
+href="https://www.prnewswire.com/news-releases/childrens-hospital-of-philadelphia-researchers-use-a-trojan-horse-approach-to-develop-new-antimalarial-drugs-302393363.html"><span
+style='font-size:10.0pt'>PR Newswire</span></a></span><span style='font-size:
+10.0pt;font-family:"Arial",sans-serif'>, </span><span style='font-family:"Arial",sans-serif;
+color:#0563C1'><a href="https://www.pnas.org/doi/10.1073/pnas.2417682122"><span
+style='font-size:10.0pt'>PNAS</span></a></span><span style='font-size:10.0pt;
+font-family:"Arial",sans-serif'>) </span></p>
+
+In this example, in the first paragraph tag the "summary_title" will receive "Prodrug activation in malaria parasites mediated by an imported erythrocyte esterase, acylpeptide hydrolase (APEH)" and the "reported_location" will receive "United States"
+
+The title can also be attributed to regions, consider these examples:
+
+<p class=MsoListParagraphCxSpFirst style='margin-bottom:0cm;text-align:justify;
+text-indent:-18.0pt;line-height:normal'><span style='font-size:10.0pt;
+font-family:"Arial",sans-serif;color:black'>9.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b><span style='font-size:10.0pt;font-family:"Arial",sans-serif;
+color:black'>Syndromic screening for infection prevention and control measures
+during public health emergencies, Worldwide</span></b></p>
+
+In the example above "summary_title" will receive "Syndromic screening for infection prevention and control measures
+during public health emergencies" and the "reported_location" will be "Worldwide".
+
+
+
+This is the HTML code I need you extract the the dictionaries, OUTPUT ONLY  A LIST OF DICTIONARIES:
+"""

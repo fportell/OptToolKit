@@ -122,42 +122,19 @@
                         <h5 class="mt-2 mb-0">{{ "%.1f"|format(results.revision_result.processing_time) }}s</h5>
                         <p class="text-muted mb-0 small">Processing Time</p>
                         <span class="badge bg-info">
-                            {{ revision_types[results.options.revision_type].name }}
+                            {{ available_models[results.options.model_name].name }}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Improvement Suggestions -->
-        {% if results.suggestions %}
-        <div class="card mb-4 border-warning">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="bi bi-lightbulb"></i> Improvement Suggestions
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for suggestion in results.suggestions %}
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-start">
-                            <span class="badge bg-warning text-dark me-2">{{ suggestion.category }}</span>
-                            <p class="mb-0">{{ suggestion.suggestion }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
         <!-- Side-by-Side Comparison -->
-        <div class="card shadow-sm">
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-success text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-columns-gap"></i> Text Comparison
+                        <i class="bi bi-columns-gap"></i> View Changes
                     </h5>
                     <a href="{{ url_for('summary_revision.download_revised', result_id=result_id) }}"
                        class="btn btn-light btn-sm">
@@ -171,33 +148,52 @@
                     <div class="col-md-6 border-end">
                         <div class="p-3 bg-light border-bottom">
                             <h6 class="mb-0 text-muted">
-                                <i class="bi bi-file-earmark"></i> Original Text
+                                <i class="bi bi-file-earmark"></i> Original
                             </h6>
                         </div>
                         <div class="p-3" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
-                            <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem;">{{ results.revision_result.original_text }}</pre>
+                            <div style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem; line-height: 1.6;">{{ results.revision_result.original_text }}</div>
                         </div>
                     </div>
 
-                    <!-- Revised Text -->
+                    <!-- Revised Text with Highlighting -->
                     <div class="col-md-6">
                         <div class="p-3 bg-success text-white border-bottom">
                             <h6 class="mb-0">
-                                <i class="bi bi-file-earmark-check"></i> Revised Text
+                                <i class="bi bi-file-earmark-check"></i> Revised (with changes highlighted)
                             </h6>
                         </div>
                         <div class="p-3" style="min-height: 400px; max-height: 600px; overflow-y: auto;">
-                            <div class="position-relative">
-                                <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem;" id="revised-text">{{ results.revision_result.revised_text }}</pre>
-                                <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0"
-                                        onclick="copyRevisedText()"
-                                        title="Copy to clipboard">
-                                    <i class="bi bi-clipboard"></i> Copy
-                                </button>
-                            </div>
+                            <div style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem; line-height: 1.6;">{{ results.highlighted_text|safe }}</div>
                         </div>
                     </div>
                 </div>
+                <div class="p-2 bg-light border-top text-center">
+                    <small class="text-muted">
+                        <span style="background-color: #ffcccc; padding: 2px 6px; text-decoration: line-through;">Removed</span>
+                        |
+                        <span style="background-color: #ccffcc; padding: 2px 6px; font-weight: bold;">Added</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Revised Text (for copying) -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-file-earmark-text"></i> Revised Text
+                    </h6>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="copyRevisedText()"
+                            title="Copy to clipboard">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <textarea class="form-control font-monospace" id="revised-text" rows="10" readonly style="resize: vertical;">{{ results.revision_result.revised_text }}</textarea>
             </div>
         </div>
 
@@ -212,27 +208,33 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p class="mb-2">
-                            <strong>Revision Type:</strong>
+                            <strong>Model:</strong>
                             <span class="badge bg-success">
-                                {{ revision_types[results.options.revision_type].name }}
+                                {{ available_models[results.options.model_name].name }}
                             </span>
                         </p>
                         <p class="mb-2">
                             <strong>Description:</strong>
-                            {{ revision_types[results.options.revision_type].description }}
+                            {{ available_models[results.options.model_name].description }}
+                        </p>
+                        <p class="mb-2">
+                            <strong>Canadian English:</strong>
+                            {% if results.options.use_canadian_english %}
+                            <span class="badge bg-info">Enabled</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Disabled</span>
+                            {% endif %}
                         </p>
                     </div>
                     <div class="col-md-6">
-                        {% if results.options.custom_instructions %}
-                        <p class="mb-2">
-                            <strong>Custom Instructions:</strong>
-                            <code>{{ results.options.custom_instructions }}</code>
-                        </p>
-                        {% endif %}
                         <p class="mb-2">
                             <strong>API Usage:</strong>
                             Prompt: {{ results.revision_result.usage.prompt_tokens }} tokens |
                             Completion: {{ results.revision_result.usage.completion_tokens }} tokens
+                        </p>
+                        <p class="mb-2">
+                            <strong>Processing Time:</strong>
+                            {{ "%.1f"|format(results.revision_result.processing_time) }}s
                         </p>
                     </div>
                 </div>
@@ -248,7 +250,7 @@
 <script>
     // Copy revised text to clipboard
     function copyRevisedText() {
-        const revisedText = document.getElementById('revised-text').textContent;
+        const revisedText = document.getElementById('revised-text').value;
         navigator.clipboard.writeText(revisedText).then(() => {
             OpsToolKit.showNotification('Revised text copied to clipboard!', 'success', 2000);
         }).catch(err => {

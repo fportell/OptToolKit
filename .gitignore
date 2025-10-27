@@ -1,4 +1,15 @@
+# ============================================================================
+# Environment & Secrets
+# ============================================================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# ============================================================================
 # Python
+# ============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -16,29 +27,42 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
-
-# Virtual Environment
 venv/
 env/
 ENV/
 env.bak/
 venv.bak/
 
+# ============================================================================
 # Flask
+# ============================================================================
 instance/
-.webassets-cache
+flask_session/
+*.db-journal
 
-# Environment variables
-.env
-.env.local
-.env.*.local
+# ============================================================================
+# Logs & Runtime Data
+# ============================================================================
+logs/
+*.log
+*.log.*
 
-# IDEs
+# ============================================================================
+# Testing
+# ============================================================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ============================================================================
+# IDE & Editors
+# ============================================================================
 .vscode/
 .idea/
 *.swp
@@ -46,77 +70,43 @@ instance/
 *~
 .DS_Store
 
-# Testing
-.coverage
-.pytest_cache/
-.tox/
-htmlcov/
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# ============================================================================
+# Documentation & Development
+# ============================================================================
+CLAUDE.md
+specs/
+legacy_code/
 
-# Logs
-logs/
-*.log
+# ============================================================================
+# Chatbot Service - Runtime Data (regenerated from Excel)
+# ============================================================================
+# ChromaDB vector store (234MB, regenerated from DR_database_PBI.xlsx)
+app/data/chatbot/chroma_db/
 
-# Node.js (for RSS Manager)
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Temporary uploads and backups
+app/data/chatbot/uploads/
+app/data/chatbot/backups/
 
-# Temporary files
+# Runtime metadata (regenerated)
+app/data/chatbot/metadata.json
+app/data/chatbot/DR_database_PBI_metadata.json
+
+# Embedding cache (can be regenerated)
+app/data/chatbot/embedding_cache/
+
+# ============================================================================
+# KEEP: Application Databases (needed for deployment)
+# ============================================================================
+# Explicitly include these by NOT ignoring them:
+# - app/data/chatbot/DR_database_PBI.xlsx (main database)
+# - app/data/rss_subscriptions.db (RSS subscriptions)
+# - app/data/dr_tracker/*.json (static configuration)
+# - app/data/dr_tracker/*.txt (prompts and templates)
+
+# ============================================================================
+# Temporary Files
+# ============================================================================
 *.tmp
 *.temp
-temp/
-tmp/
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# AI/ML Models (large files)
-*.bin
-*.pt
-*.pth
-*.onnx
-*.h5
-*.keras
-
-# Sentence Transformers cache
-.cache/
-transformers/
-
-# Excel files (except templates)
-*.xlsx
-*.xlsm
-!app/services/chatbot/data/DR_database_PBI.xlsx
-
-# Uploaded files
-uploads/
-temp_uploads/
-
-# Deployment
-*.pid
-*.sock
-
-# OS
-Thumbs.db
-Desktop.ini
-
-# Security scanning reports
-pip-audit-report.json
-npm-audit-report.json
-
-# Documentation build artifacts
-docs/_build/
-docs/.doctrees/
-
-# Coverage reports
-.coverage.*
-coverage.xml
-*.cover
-
-# Profiling
-*.prof
+*.bak
+*.backup

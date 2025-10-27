@@ -1,128 +1,131 @@
 """
-Text Revision Service using OpenAI GPT-4.
+Text Revision Service using OpenAI GPT-4.1.
 
 Provides AI-powered text revision and improvement suggestions.
-Per FR-007: AI-powered content revision using OpenAI GPT-4 models.
+Per FR-007: AI-powered content revision using OpenAI GPT-4.1 models.
 """
 
 import logging
+import os
 import time
-import uuid
+import difflib
 from typing import Dict, Any, Optional, List
 from openai import OpenAI
 from flask import current_app
 
 logger = logging.getLogger(__name__)
 
+# Editing guidelines for text revision
+EDITING_GUIDELINES = """**EDITING GUIDELINES:**
+
+## Numbers
+- Use Arabic numerals to write the number of cases, units of time, dosing information, etc.
+	- e.g., There have been 5 confirmed cases over a 3-month period. These cases have received 2 doses of vaccine.
+
+## Dates
+- Acceptable formats: Month Date, Year or Month Date.
+	- e.g., January 1, 2022, or January 1.
+
+## Foreign Words
+- Remove accents from foreign words, except for French words which should retain their original accents.
+	- e.g., Write "Sao Paulo" instead of "São Paulo," "Malaga" instead of "Málaga"
+	- e.g., Keep French accents: "Montréal," "Québec," "Saint-Étienne"
+
+## Tense Usage
+- Use appropriate English tenses based on whether there is a connection with the present:
+	- **Simple Past**: For completed actions with no present connection
+		- e.g., "The study concluded in 2020"
+	- **Present Perfect**: For completed actions with present relevance or ongoing effects
+		- e.g., "The research has shown significant improvements in patient outcomes"
+	- **Present Perfect Continuous**: For actions that started in the past and continue to the present
+		- e.g., "Researchers have been monitoring patient progress for six months"
+	- **Past Perfect**: For actions completed before another past action
+		- e.g., "Participants had completed the baseline assessment before treatment began"
+	- **Past Perfect Continuous**: For ongoing actions in the past that were completed before another past action
+		- e.g., "Scientists had been studying the virus for years before the outbreak occurred"
+	- **Past Continuous**: For ongoing actions in the past
+		- e.g., "Researchers were collecting data throughout the trial period"
+"""
+
 
 class RevisionService:
     """
-    AI-powered text revision service using OpenAI GPT-4.
+    AI-powered text revision service using OpenAI GPT-4.1.
 
-    Provides text improvement, grammar correction, clarity enhancement,
-    and style suggestions.
+    Provides text improvement, grammar correction, and clarity enhancement.
     """
 
-    # Revision types
-    REVISION_TYPES = {
-        'general': {
-            'name': 'General Improvement',
-            'description': 'Improve overall quality, grammar, and clarity',
-            'system_prompt': (
-                "You are an expert editor. Improve the following text by:\n"
-                "1. Correcting grammar and spelling errors\n"
-                "2. Enhancing clarity and readability\n"
-                "3. Improving sentence structure\n"
-                "4. Maintaining the original meaning and tone\n"
-                "Provide only the revised text without explanations."
-            )
+    # Available models
+    AVAILABLE_MODELS = {
+        'gpt-4.1': {
+            'name': 'GPT-4.1',
+            'description': 'Superior quality - Most advanced language model'
         },
-        'professional': {
-            'name': 'Professional Tone',
-            'description': 'Convert to professional business language',
-            'system_prompt': (
-                "You are an expert business writer. Revise the following text to:\n"
-                "1. Use professional, business-appropriate language\n"
-                "2. Maintain formal tone\n"
-                "3. Improve clarity and conciseness\n"
-                "4. Remove casual expressions\n"
-                "Provide only the revised text without explanations."
-            )
-        },
-        'concise': {
-            'name': 'Make Concise',
-            'description': 'Reduce wordiness while preserving meaning',
-            'system_prompt': (
-                "You are an expert editor specializing in conciseness. Revise the following text to:\n"
-                "1. Remove unnecessary words and redundancy\n"
-                "2. Make sentences more direct and clear\n"
-                "3. Preserve all important information\n"
-                "4. Maintain the original tone\n"
-                "Provide only the revised text without explanations."
-            )
-        },
-        'detailed': {
-            'name': 'Add Detail',
-            'description': 'Expand with more context and examples',
-            'system_prompt': (
-                "You are an expert writer. Enhance the following text by:\n"
-                "1. Adding relevant details and context\n"
-                "2. Including appropriate examples\n"
-                "3. Expanding on key points\n"
-                "4. Maintaining clarity and coherence\n"
-                "Provide only the revised text without explanations."
-            )
-        },
-        'grammar': {
-            'name': 'Grammar Only',
-            'description': 'Fix grammar and spelling errors only',
-            'system_prompt': (
-                "You are an expert proofreader. Correct the following text by:\n"
-                "1. Fixing grammar errors\n"
-                "2. Correcting spelling mistakes\n"
-                "3. Fixing punctuation issues\n"
-                "4. NOT changing the writing style or word choice\n"
-                "Provide only the corrected text without explanations."
-            )
+        'gpt-4.1-mini': {
+            'name': 'GPT-4.1-mini',
+            'description': 'Very good quality - Optimized GPT-4.1 variant'
         }
     }
 
-    def __init__(self):
-        """Initialize the revision service."""
+    def __init__(self, api_key: Optional[str] = None):
+        """Initialize the revision service.
+
+        Args:
+            api_key: OpenAI API key. If None, will try to get from current_app.config
+        """
         self.client = None
-        self.model = None
+        self.api_key = api_key
 
     def _ensure_client(self):
         """Ensure OpenAI client is initialized."""
         if self.client is None:
-            api_key = current_app.config.get('OPENAI_API_KEY')
+            # Use provided API key or get from current_app
+            api_key = self.api_key
+            if not api_key:
+                try:
+                    api_key = current_app.config.get('OPENAI_API_KEY')
+                except RuntimeError:
+                    # If we're outside application context, try environment variable
+                    api_key = os.getenv('OPENAI_API_KEY')
+
             if not api_key:
                 raise ValueError("OPENAI_API_KEY not configured")
 
-            self.client = OpenAI(api_key=api_key)
-            self.model = current_app.config.get('SUMMARY_REVISION_MODEL', 'gpt-4')
+            # Debug log
+            logger.info(f"Initializing OpenAI client with api_key type: {type(api_key)}, length: {len(api_key) if api_key else 0}")
 
-            logger.info(f"Initialized OpenAI client with model: {self.model}")
+            # Ensure api_key is a string and strip whitespace/quotes
+            if isinstance(api_key, str):
+                api_key = api_key.strip().strip('"').strip("'")
+
+            try:
+                self.client = OpenAI(api_key=api_key)
+                logger.info("Initialized OpenAI client successfully")
+            except TypeError as e:
+                logger.error(f"TypeError initializing OpenAI client: {e}")
+                # Try with minimal parameters
+                self.client = OpenAI(api_key=api_key)
+                raise
 
     def revise_text(self,
                     text: str,
-                    revision_type: str = 'general',
-                    custom_instructions: Optional[str] = None) -> Dict[str, Any]:
+                    model_name: str = 'gpt-4.1',
+                    use_canadian_english: bool = True) -> Dict[str, Any]:
         """
-        Revise text using OpenAI GPT-4.
+        Revise text using OpenAI GPT-4.1.
 
         Args:
             text: The text to revise
-            revision_type: Type of revision ('general', 'professional', 'concise', etc.)
-            custom_instructions: Optional custom instructions for revision
+            model_name: Model to use ('gpt-4.1' or 'gpt-4.1-mini')
+            use_canadian_english: Apply Canadian English spelling and grammar
 
         Returns:
             dict: Revision results with keys:
                 - success: bool
                 - revised_text: str (if successful)
                 - original_text: str
-                - revision_type: str
                 - model: str
+                - use_canadian_english: bool
                 - usage: dict (tokens used)
                 - processing_time: float (seconds)
                 - error: str (if failed)
@@ -133,8 +136,8 @@ class RevisionService:
             'success': False,
             'original_text': text,
             'revised_text': None,
-            'revision_type': revision_type,
-            'model': None,
+            'model': model_name,
+            'use_canadian_english': use_canadian_english,
             'usage': None,
             'processing_time': 0,
             'error': None
@@ -143,7 +146,6 @@ class RevisionService:
         try:
             # Initialize client
             self._ensure_client()
-            result['model'] = self.model
 
             # Validate input
             if not text or not text.strip():
@@ -155,31 +157,30 @@ class RevisionService:
                 result['error'] = 'Text is too long (maximum ~12,500 words)'
                 return result
 
-            # Get system prompt
-            if revision_type not in self.REVISION_TYPES:
-                result['error'] = f'Invalid revision type: {revision_type}'
+            # Validate model
+            if model_name not in self.AVAILABLE_MODELS:
+                result['error'] = f'Invalid model: {model_name}'
                 return result
 
-            system_prompt = self.REVISION_TYPES[revision_type]['system_prompt']
+            # Build prompt
+            system_prompt = "You are a professional editor. Correct grammar, improve clarity, and eliminate redundancy. Maintain the original meaning and tone."
 
-            # Add custom instructions if provided
-            if custom_instructions:
-                system_prompt += f"\n\nAdditional instructions: {custom_instructions}"
+            if use_canadian_english:
+                user_prompt = f"Here is a revised version with Canadian English, improved clarity, and no redundancy considering these guidelines:\n{EDITING_GUIDELINES}\n**Summary to review:**\n{text}"
+            else:
+                user_prompt = f"Here is a revised version with improved clarity and no redundancy:\n\n{text}"
 
             # Make API call
-            logger.info(f"Requesting revision (type: {revision_type}, length: {len(text)} chars)")
+            logger.info(f"Requesting revision (model: {model_name}, canadian: {use_canadian_english}, length: {len(text)} chars)")
 
             response = self.client.chat.completions.create(
-                model=self.model,
+                model=model_name,
                 messages=[
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text}
+                    {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.3,  # Lower temperature for more consistent revisions
-                max_tokens=4000,  # Allow longer responses
-                top_p=1.0,
-                frequency_penalty=0.0,
-                presence_penalty=0.0
+                temperature=0.3,
+                max_tokens=min(len(text) * 2, 4000)
             )
 
             # Extract revised text
@@ -247,58 +248,35 @@ class RevisionService:
             'words_change_percent': (words_change / original_words * 100) if original_words > 0 else 0
         }
 
-    def get_suggestions(self, text: str) -> List[Dict[str, str]]:
+    def highlight_changes(self, original: str, revised: str) -> str:
         """
-        Get improvement suggestions without full revision.
+        Create HTML with highlighted changes between original and revised text.
 
         Args:
-            text: The text to analyze
+            original: Original text
+            revised: Revised text
 
         Returns:
-            list: List of suggestion dictionaries with 'category' and 'suggestion' keys
+            str: HTML string with highlighted changes
+                - Deletions: red background (#ffcccc) with strikethrough
+                - Additions: green background (#ccffcc) with bold
         """
-        try:
-            self._ensure_client()
+        d = difflib.Differ()
+        diff = list(d.compare(original.split(), revised.split()))
 
-            system_prompt = (
-                "You are an expert editor. Analyze the following text and provide "
-                "3-5 specific, actionable improvement suggestions. Format each suggestion "
-                "as 'CATEGORY: Suggestion text'. Categories can be: Grammar, Clarity, "
-                "Style, Structure, Tone, etc."
-            )
+        html_output = []
+        for word in diff:
+            if word.startswith('- '):
+                # Deletion: red background with strikethrough
+                html_output.append(f'<span style="background-color: #ffcccc; text-decoration: line-through;">{word[2:]}</span>')
+            elif word.startswith('+ '):
+                # Addition: green background with bold
+                html_output.append(f'<span style="background-color: #ccffcc; font-weight: bold;">{word[2:]}</span>')
+            elif word.startswith('  '):
+                # Unchanged
+                html_output.append(word[2:])
 
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": text}
-                ],
-                temperature=0.5,
-                max_tokens=500
-            )
-
-            suggestions_text = response.choices[0].message.content.strip()
-
-            # Parse suggestions
-            suggestions = []
-            for line in suggestions_text.split('\n'):
-                line = line.strip()
-                if ':' in line and line:
-                    parts = line.split(':', 1)
-                    if len(parts) == 2:
-                        category = parts[0].strip().lstrip('0123456789.-) ')
-                        suggestion = parts[1].strip()
-                        suggestions.append({
-                            'category': category,
-                            'suggestion': suggestion
-                        })
-
-            logger.info(f"Generated {len(suggestions)} suggestions")
-            return suggestions
-
-        except Exception as e:
-            logger.error(f"Error generating suggestions: {e}")
-            return []
+        return ' '.join(html_output)
 
 
 # Global service instance
@@ -315,6 +293,14 @@ def get_revision_service() -> RevisionService:
     global _revision_service
 
     if _revision_service is None:
-        _revision_service = RevisionService()
+        # Try to get API key from current_app, fallback to environment variable
+        api_key = None
+        try:
+            api_key = current_app.config.get('OPENAI_API_KEY')
+        except RuntimeError:
+            # Outside application context, use environment variable
+            api_key = os.getenv('OPENAI_API_KEY')
+
+        _revision_service = RevisionService(api_key=api_key)
 
     return _revision_service

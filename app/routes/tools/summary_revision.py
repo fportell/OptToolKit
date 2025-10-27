@@ -43,12 +43,12 @@ def index():
     """
     logger.info(f"User {current_user.id} accessed summary revision tool")
 
-    # Get available revision types
-    revision_types = RevisionService.REVISION_TYPES
+    # Get available models
+    available_models = RevisionService.AVAILABLE_MODELS
 
     return render_template(
         'tools/summary_revision.html',
-        revision_types=revision_types
+        available_models=available_models
     )
 
 
@@ -58,7 +58,7 @@ def revise():
     """
     Process text revision request.
 
-    Accepts text input (direct or file upload) and revision options,
+    Accepts text input and revision options,
     performs AI revision, and redirects to results page.
 
     Returns:
@@ -67,38 +67,24 @@ def revise():
     try:
         # Get text input
         text_input = request.form.get('text_input', '').strip()
-        file = request.files.get('text_file')
-
-        # Process file upload if provided
-        if file and file.filename and allowed_file(file.filename):
-            try:
-                # Read file content
-                content = file.read().decode('utf-8')
-                if content.strip():
-                    text_input = content
-                    logger.info(f"Loaded text from file: {file.filename} ({len(content)} chars)")
-            except UnicodeDecodeError:
-                flash('Unable to read file. Please ensure it is a valid text file (UTF-8).', 'danger')
-                return redirect(url_for('summary_revision.index'))
 
         # Validate input
         if not text_input:
-            flash('Please provide text to revise (either by typing or uploading a file).', 'danger')
+            flash('Please provide text to revise.', 'danger')
             return redirect(url_for('summary_revision.index'))
 
         # Get revision options
-        revision_type = request.form.get('revision_type', 'general')
-        custom_instructions = request.form.get('custom_instructions', '').strip()
-        get_suggestions = request.form.get('get_suggestions') == 'on'
+        model_name = request.form.get('model_name', 'gpt-4.1')
+        use_canadian_english = request.form.get('use_canadian_english') == 'on'
 
-        # Validate revision type
-        if revision_type not in RevisionService.REVISION_TYPES:
-            flash(f'Invalid revision type: {revision_type}', 'danger')
+        # Validate model
+        if model_name not in RevisionService.AVAILABLE_MODELS:
+            flash(f'Invalid model: {model_name}', 'danger')
             return redirect(url_for('summary_revision.index'))
 
         logger.info(
-            f"Revision request: type={revision_type}, length={len(text_input)}, "
-            f"suggestions={get_suggestions}"
+            f"Revision request: model={model_name}, canadian={use_canadian_english}, "
+            f"length={len(text_input)}"
         )
 
         # Get revision service
@@ -116,12 +102,11 @@ def revise():
             _results_cache[result_id] = {
                 'status': 'processing',
                 'revision_result': None,
-                'suggestions': None,
                 'comparison': None,
+                'highlighted_text': None,
                 'options': {
-                    'revision_type': revision_type,
-                    'custom_instructions': custom_instructions,
-                    'get_suggestions': get_suggestions
+                    'model_name': model_name,
+                    'use_canadian_english': use_canadian_english
                 }
             }
 
@@ -130,19 +115,19 @@ def revise():
                 """Callback to process revision."""
                 result = service.revise_text(
                     text_input,
-                    revision_type,
-                    custom_instructions if custom_instructions else None
+                    model_name,
+                    use_canadian_english
                 )
 
-                # Get suggestions if requested
-                suggestions = None
-                if get_suggestions and result['success']:
-                    suggestions = service.get_suggestions(text_input)
-
-                # Get comparison if successful
+                # Get comparison and highlighting if successful
                 comparison = None
+                highlighted_text = None
                 if result['success']:
                     comparison = service.compare_texts(
+                        result['original_text'],
+                        result['revised_text']
+                    )
+                    highlighted_text = service.highlight_changes(
                         result['original_text'],
                         result['revised_text']
                     )
@@ -150,8 +135,8 @@ def revise():
                 # Update cache
                 _results_cache[result_id]['status'] = 'completed'
                 _results_cache[result_id]['revision_result'] = result
-                _results_cache[result_id]['suggestions'] = suggestions
                 _results_cache[result_id]['comparison'] = comparison
+                _results_cache[result_id]['highlighted_text'] = highlighted_text
 
             queue.enqueue(
                 request_id,
@@ -165,19 +150,19 @@ def revise():
             # Process immediately
             result = service.revise_text(
                 text_input,
-                revision_type,
-                custom_instructions if custom_instructions else None
+                model_name,
+                use_canadian_english
             )
 
-            # Get suggestions if requested
-            suggestions = None
-            if get_suggestions and result['success']:
-                suggestions = service.get_suggestions(text_input)
-
-            # Get comparison if successful
+            # Get comparison and highlighting if successful
             comparison = None
+            highlighted_text = None
             if result['success']:
                 comparison = service.compare_texts(
+                    result['original_text'],
+                    result['revised_text']
+                )
+                highlighted_text = service.highlight_changes(
                     result['original_text'],
                     result['revised_text']
                 )
@@ -187,12 +172,11 @@ def revise():
             _results_cache[result_id] = {
                 'status': 'completed',
                 'revision_result': result,
-                'suggestions': suggestions,
                 'comparison': comparison,
+                'highlighted_text': highlighted_text,
                 'options': {
-                    'revision_type': revision_type,
-                    'custom_instructions': custom_instructions,
-                    'get_suggestions': get_suggestions
+                    'model_name': model_name,
+                    'use_canadian_english': use_canadian_english
                 }
             }
 
@@ -236,7 +220,7 @@ def results(result_id: str):
         'tools/summary_revision_results.html',
         results=results_data,
         result_id=result_id,
-        revision_types=RevisionService.REVISION_TYPES
+        available_models=RevisionService.AVAILABLE_MODELS
     )
 
 

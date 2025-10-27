@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Add Subscription - RSS Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-2">
+                    <i class="bi bi-plus-circle text-success"></i>
+                    Add RSS Subscription
+                </h2>
+                <p class="text-muted mb-0">
+                    Add a new RSS feed to your subscription collection
+                </p>
+            </div>
+            <a href="{{ url_for('rss_manager.list_subscriptions') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle"></i> Cancel
+            </a>
+        </div>
+
+        <!-- Add Form -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text"></i> Subscription Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('rss_manager.add_subscription') }}" id="add-form" data-loading="true" data-loading-message="Adding subscription...">
+                    <!-- RSS Feed URL -->
+                    <div class="mb-3">
+                        <label for="xml_url" class="form-label fw-bold">
+                            <i class="bi bi-rss"></i> RSS Feed URL *
+                        </label>
+                        <input type="url"
+                               class="form-control"
+                               id="xml_url"
+                               name="xml_url"
+                               required
+                               placeholder="https://example.com/feed.xml">
+                        <div class="form-text">The full URL to the RSS/Atom feed</div>
+                    </div>
+
+                    <!-- Website URL -->
+                    <div class="mb-3">
+                        <label for="html_url" class="form-label fw-bold">
+                            <i class="bi bi-globe"></i> Website URL *
+                        </label>
+                        <input type="url"
+                               class="form-control"
+                               id="html_url"
+                               name="html_url"
+                               required
+                               placeholder="https://example.com">
+                        <div class="form-text">The organization's homepage</div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-bold">
+                            <i class="bi bi-card-heading"></i> Title *
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="title"
+                               name="title"
+                               required
+                               placeholder="Organization Name">
+                        <div class="form-text">Organization or outlet name</div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Language -->
+                        <div class="col-md-6 mb-3">
+                            <label for="language" class="form-label fw-bold">
+                                <i class="bi bi-translate"></i> Language *
+                            </label>
+                            <input type="text"
+                                   class="form-control text-uppercase"
+                                   id="language"
+                                   name="language"
+                                   required
+                                   maxlength="2"
+                                   placeholder="EN"
+                                   pattern="[A-Za-z]{2}">
+                            <div class="form-text">ISO 639-1 code (2 letters, e.g., EN, FR, ES)</div>
+                        </div>
+
+                        <!-- Country -->
+                        <div class="col-md-6 mb-3">
+                            <label for="country" class="form-label fw-bold">
+                                <i class="bi bi-flag"></i> Country *
+                            </label>
+                            <input type="text"
+                                   class="form-control text-uppercase"
+                                   id="country"
+                                   name="country"
+                                   required
+                                   maxlength="3"
+                                   placeholder="USA"
+                                   pattern="[A-Za-z]{3}">
+                            <div class="form-text">ISO 3166-1 alpha-3 code (3 letters, e.g., USA, CAN, INT)</div>
+                        </div>
+                    </div>
+
+                    <!-- Subdivision -->
+                    <div class="mb-3">
+                        <label for="subdivision" class="form-label fw-bold">
+                            <i class="bi bi-geo-alt"></i> Subdivision
+                        </label>
+                        <input type="text"
+                               class="form-control text-uppercase"
+                               id="subdivision"
+                               name="subdivision"
+                               placeholder="NAT"
+                               maxlength="10">
+                        <div class="form-text">ISO 3166-2 code (e.g., US-CA, CA-ON), NAT for national, or leave blank for N/A</div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Organization Type -->
+                        <div class="col-md-6 mb-3">
+                            <label for="type" class="form-label fw-bold">
+                                <i class="bi bi-building"></i> Organization Type *
+                            </label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="">Select type...</option>
+                                {% for org_type in organization_types %}
+                                <option value="{{ org_type }}">{{ org_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Geographic Scope -->
+                        <div class="col-md-6 mb-3">
+                            <label for="scope" class="form-label fw-bold">
+                                <i class="bi bi-diagram-3"></i> Geographic Scope *
+                            </label>
+                            <select class="form-select" id="scope" name="scope" required>
+                                <option value="">Select scope...</option>
+                                {% for scope_option in scopes %}
+                                <option value="{{ scope_option }}">{{ scope_option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{{ url_for('rss_manager.list_subscriptions') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Add Subscription
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="card border-info mt-4">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                    <i class="bi bi-question-circle"></i> Field Descriptions
+                </h6>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-3">RSS Feed URL</dt>
+                    <dd class="col-sm-9">The direct link to the RSS or Atom feed XML file</dd>
+
+                    <dt class="col-sm-3">Website URL</dt>
+                    <dd class="col-sm-9">The organization's main website homepage</dd>
+
+                    <dt class="col-sm-3">Language</dt>
+                    <dd class="col-sm-9">ISO 639-1 two-letter code (en, fr, es, de, etc.)</dd>
+
+                    <dt class="col-sm-3">Country</dt>
+                    <dd class="col-sm-9">ISO 3166-1 alpha-3 code (USA, CAN, GBR, INT for international)</dd>
+
+                    <dt class="col-sm-3">Subdivision</dt>
+                    <dd class="col-sm-9">ISO 3166-2 code for states/provinces (US-CA for California, CA-ON for Ontario), NAT for national-level sources, or leave blank</dd>
+
+                    <dt class="col-sm-3">Organization Type</dt>
+                    <dd class="col-sm-9">The type of organization or content source</dd>
+
+                    <dt class="col-sm-3">Scope</dt>
+                    <dd class="col-sm-9 mb-0">Geographic coverage: International, National, or Local</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-uppercase language and country fields
+document.getElementById('language').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+
+document.getElementById('country').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+
+document.getElementById('subdivision').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+</script>
+{% endblock %}
