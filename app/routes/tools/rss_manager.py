@@ -84,6 +84,9 @@ def list_subscriptions():
         f"total={result['total']}, page={page}, per_page={per_page}"
     )
 
+    # Check for query parse errors
+    query_error = result.get('error')
+
     return render_template(
         'tools/rss_manager/list.html',
         subscriptions=result['subscriptions'],
@@ -99,7 +102,8 @@ def list_subscriptions():
             'search': search_query
         },
         organization_types=service.ORGANIZATION_TYPES,
-        scopes=service.SCOPES
+        scopes=service.SCOPES,
+        query_error=query_error
     )
 
 

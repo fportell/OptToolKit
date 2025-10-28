@@ -40,14 +40,20 @@
                         <div class="col-md-6 mb-3">
                             <label for="search" class="form-label">
                                 <i class="bi bi-search"></i> Full-Text Search
+                                <a href="#" class="text-info ms-1" data-bs-toggle="modal" data-bs-target="#searchHelpModal" title="Advanced Search Help">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
                             </label>
                             <input type="text"
                                    class="form-control"
                                    id="search"
                                    name="search"
                                    value="{{ filters.search or '' }}"
-                                   placeholder="Search titles and URLs...">
-                            <div class="form-text">FTS5-powered search across titles and URLs</div>
+                                   placeholder="Search titles and URLs, or use advanced syntax (e.g., lan:en type:MED)">
+                            <div class="form-text">
+                                FTS5-powered search. Use advanced syntax:
+                                <code>lan:en</code>, <code>country:USA</code>, <code>type:MED</code>, <code>AND</code>, <code>OR</code>, <code>NOT</code>
+                            </div>
                         </div>
 
                         <!-- Per Page -->
@@ -135,6 +141,29 @@
                 </form>
             </div>
         </div>
+
+        <!-- Query Parse Error -->
+        {% if query_error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Advanced Query Syntax Error</h5>
+            <p class="mb-2"><strong>{{ query_error }}</strong></p>
+            <hr>
+            <p class="mb-0">
+                <small>
+                    <strong>Supported syntax:</strong>
+                    <code>lan:en</code>, <code>country:USA</code>, <code>type:MED</code>, <code>scope:National</code>,
+                    <code>title:health</code>, <code>url:cdc.gov</code><br>
+                    <strong>Operators:</strong> <code>AND</code>, <code>OR</code>, <code>NOT</code> (precedence: NOT > AND > OR)<br>
+                    <strong>Examples:</strong>
+                    <code>lan:en AND type:MED</code>,
+                    <code>lan:en OR lan:fr</code>,
+                    <code>lan:en NOT country:USA</code>,
+                    <code>lan:en OR lan:fr AND type:MED</code>
+                </small>
+            </p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
 
         <!-- Bulk Actions -->
         {% if subscriptions %}
@@ -296,6 +325,220 @@
     <input type="hidden" name="selected_ids" id="export-selected-ids">
     <input type="hidden" name="collection_name" id="export-collection-name">
 </form>
+
+<!-- Advanced Search Help Modal -->
+<div class="modal fade" id="searchHelpModal" tabindex="-1" aria-labelledby="searchHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="searchHelpModalLabel">
+                    <i class="bi bi-book"></i> Advanced Search Guide
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Quick Start -->
+                <div class="mb-4">
+                    <h6 class="text-primary border-bottom pb-2">
+                        <i class="bi bi-lightning-charge"></i> Quick Start
+                    </h6>
+                    <p>Use field modifiers and boolean operators to create powerful search queries:</p>
+                    <div class="bg-light p-3 rounded">
+                        <code>lan:en AND type:MED</code> → English media outlets<br>
+                        <code>lan:en OR lan:fr</code> → English or French subscriptions<br>
+                        <code>country:BRA NOT scope:Local</code> → Brazilian, but not local
+                    </div>
+                </div>
+
+                <!-- Field Modifiers -->
+                <div class="mb-4">
+                    <h6 class="text-primary border-bottom pb-2">
+                        <i class="bi bi-tag"></i> Field Modifiers
+                    </h6>
+                    <p>Target specific metadata fields using <code>field:value</code> syntax:</p>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Modifier</th>
+                                <th>Field</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>lan:</code></td>
+                                <td>Language</td>
+                                <td><code>lan:en</code>, <code>lan:pt</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>country:</code></td>
+                                <td>Country</td>
+                                <td><code>country:USA</code>, <code>country:BRA</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>type:</code></td>
+                                <td>Organization Type</td>
+                                <td><code>type:MED</code>, <code>type:"Media Outlet"</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>scope:</code></td>
+                                <td>Geographic Scope</td>
+                                <td><code>scope:National</code>, <code>scope:International</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>sub:</code></td>
+                                <td>Subdivision</td>
+                                <td><code>sub:US-CA</code>, <code>sub:CA-ON</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>title:</code></td>
+                                <td>Title (FTS5)</td>
+                                <td><code>title:health</code>, <code>title:"New York"</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>url:</code></td>
+                                <td>URLs (FTS5)</td>
+                                <td><code>url:cdc.gov</code>, <code>url:bbc</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Type Codes -->
+                <div class="mb-4">
+                    <h6 class="text-primary border-bottom pb-2">
+                        <i class="bi bi-hash"></i> Type Codes (Shortcuts)
+                    </h6>
+                    <p>Use short codes instead of full type names:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><code>MED</code> → Media Outlet</li>
+                                <li><code>GOV</code> → Government Agency</li>
+                                <li><code>PHA</code> → Public Health Agency</li>
+                                <li><code>NGO</code> → Non-Governmental Org.</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><code>ACA</code> → Academic Institution</li>
+                                <li><code>PRO</code> → Professional Association</li>
+                                <li><code>SCI</code> → Scientific Journal</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boolean Operators -->
+                <div class="mb-4">
+                    <h6 class="text-primary border-bottom pb-2">
+                        <i class="bi bi-diagram-3"></i> Boolean Operators
+                    </h6>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Operator</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AND</code></td>
+                                <td>Both conditions must match</td>
+                                <td><code>lan:en AND type:MED</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>OR</code></td>
+                                <td>Either condition must match</td>
+                                <td><code>lan:en OR lan:fr</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>NOT</code></td>
+                                <td>Condition must not match</td>
+                                <td><code>lan:en NOT country:USA</code></td>
+                            </tr>
+                            <tr>
+                                <td>(space)</td>
+                                <td>Implicit AND</td>
+                                <td><code>lan:en type:MED</code> = <code>lan:en AND type:MED</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="alert alert-info mb-0">
+                        <strong><i class="bi bi-info-circle"></i> Operator Precedence:</strong>
+                        <code>NOT</code> (highest) → <code>AND</code> → <code>OR</code> (lowest)<br>
+                        <small>Example: <code>A OR B AND C</code> is evaluated as <code>A OR (B AND C)</code></small>
+                    </div>
+                </div>
+
+                <!-- Examples -->
+                <div class="mb-4">
+                    <h6 class="text-primary border-bottom pb-2">
+                        <i class="bi bi-lightbulb"></i> Example Queries
+                    </h6>
+
+                    <p class="mb-2"><strong>Basic Queries:</strong></p>
+                    <ul class="list-unstyled mb-3">
+                        <li><code>lan:pt country:BRA type:MED</code><br>
+                            <small class="text-muted">→ Portuguese Brazilian media outlets</small></li>
+                        <li><code>title:health lan:en</code><br>
+                            <small class="text-muted">→ English subscriptions with "health" in title</small></li>
+                        <li><code>type:GOV scope:National</code><br>
+                            <small class="text-muted">→ National government agencies</small></li>
+                    </ul>
+
+                    <p class="mb-2"><strong>With OR Operator:</strong></p>
+                    <ul class="list-unstyled mb-3">
+                        <li><code>lan:en OR lan:fr</code><br>
+                            <small class="text-muted">→ English or French subscriptions</small></li>
+                        <li><code>country:BRA OR country:PRT</code><br>
+                            <small class="text-muted">→ Brazil or Portugal</small></li>
+                        <li><code>type:MED OR type:GOV</code><br>
+                            <small class="text-muted">→ Media outlets or government agencies</small></li>
+                    </ul>
+
+                    <p class="mb-2"><strong>With NOT Operator:</strong></p>
+                    <ul class="list-unstyled mb-3">
+                        <li><code>lan:en NOT country:USA</code><br>
+                            <small class="text-muted">→ English, but not from USA</small></li>
+                        <li><code>type:MED NOT scope:Local</code><br>
+                            <small class="text-muted">→ Media outlets, excluding local scope</small></li>
+                    </ul>
+
+                    <p class="mb-2"><strong>Complex Queries:</strong></p>
+                    <ul class="list-unstyled">
+                        <li><code>lan:en OR lan:fr AND type:MED</code><br>
+                            <small class="text-muted">→ English OR (French media) - precedence matters!</small></li>
+                        <li><code>(lan:pt OR lan:es) AND country:BRA</code><br>
+                            <small class="text-muted">→ Portuguese or Spanish from Brazil</small></li>
+                        <li><code>title:covid lan:en NOT country:USA NOT country:GBR</code><br>
+                            <small class="text-muted">→ COVID-related, English, excluding USA and UK</small></li>
+                    </ul>
+                </div>
+
+                <!-- Tips & Notes -->
+                <div class="mb-2">
+                    <h6 class="text-primary border-bottom pb-2">
+                        <i class="bi bi-star"></i> Tips & Notes
+                    </h6>
+                    <ul>
+                        <li>Use <strong>quotes</strong> for multi-word values: <code>title:"New York Times"</code></li>
+                        <li>Field names and operators are <strong>case-insensitive</strong>: <code>LAN:en</code> = <code>lan:en</code></li>
+                        <li>Language codes use <strong>ISO 639-1</strong>: <code>en</code>, <code>fr</code>, <code>pt</code>, etc.</li>
+                        <li>Country codes use <strong>ISO 3166-1 alpha-3</strong>: <code>USA</code>, <code>BRA</code>, <code>FRA</code></li>
+                        <li>FTS5 fields (<code>title:</code>, <code>url:</code>) search <strong>partial matches</strong></li>
+                        <li>Metadata fields (<code>lan:</code>, <code>country:</code>, etc.) require <strong>exact matches</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}

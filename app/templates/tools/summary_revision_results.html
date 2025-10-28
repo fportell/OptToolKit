@@ -178,22 +178,51 @@
             </div>
         </div>
 
-        <!-- Final Revised Text (for copying) -->
+        <!-- Final Revised Text (Rendered with italics) -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="bi bi-file-earmark-text"></i> Final Revised Text (with formatting)
+                    </h6>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="copyFormattedText()"
+                            title="Copy formatted text to clipboard (works in MS Word)">
+                        <i class="bi bi-clipboard"></i> Copy for Word
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="formatted-text" style="white-space: pre-wrap; font-family: inherit; font-size: 0.95rem; line-height: 1.6; padding: 1rem; background-color: #f8f9fa; border-radius: 4px;">{{ results.revision_result.revised_text|safe }}</div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> Scientific names are displayed in italics as they should appear in your final document. Click "Copy for Word" to copy with formatting preserved.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Revised Text (Markdown version) -->
         <div class="card shadow-sm">
             <div class="card-header bg-light">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
-                        <i class="bi bi-file-earmark-text"></i> Revised Text
+                        <i class="bi bi-markdown"></i> Revised Text (Markdown)
                     </h6>
                     <button class="btn btn-sm btn-outline-secondary"
-                            onclick="copyRevisedText()"
-                            title="Copy to clipboard">
+                            onclick="copyMarkdownText()"
+                            title="Copy Markdown to clipboard">
                         <i class="bi bi-clipboard"></i> Copy
                     </button>
                 </div>
             </div>
             <div class="card-body">
-                <textarea class="form-control font-monospace" id="revised-text" rows="10" readonly style="resize: vertical;">{{ results.revision_result.revised_text }}</textarea>
+                <textarea class="form-control font-monospace" id="markdown-text" rows="10" readonly style="resize: vertical;">{{ results.markdown_text }}</textarea>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> This version uses Markdown format (*italics*) for scientific names. Compatible with Markdown editors and can be easily converted to other formats.
+                    </small>
+                </div>
             </div>
         </div>
 
@@ -248,11 +277,54 @@
 
 {% block extra_js %}
 <script>
-    // Copy revised text to clipboard
-    function copyRevisedText() {
-        const revisedText = document.getElementById('revised-text').value;
-        navigator.clipboard.writeText(revisedText).then(() => {
-            OpsToolKit.showNotification('Revised text copied to clipboard!', 'success', 2000);
+    // Copy formatted text to clipboard (works with MS Word)
+    function copyFormattedText() {
+        const formattedDiv = document.getElementById('formatted-text');
+
+        // Create a range and selection
+        const range = document.createRange();
+        range.selectNodeContents(formattedDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        try {
+            // Copy both HTML and plain text to clipboard
+            const htmlContent = formattedDiv.innerHTML;
+            const plainText = formattedDiv.innerText;
+
+            // Use modern Clipboard API with both formats
+            const clipboardItem = new ClipboardItem({
+                'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                'text/plain': new Blob([plainText], { type: 'text/plain' })
+            });
+
+            navigator.clipboard.write([clipboardItem]).then(() => {
+                OpsToolKit.showNotification('Formatted text copied! You can now paste it into MS Word with italics preserved.', 'success', 3000);
+                selection.removeAllRanges();
+            }).catch(err => {
+                // Fallback to execCommand if Clipboard API fails
+                console.warn('Clipboard API failed, trying execCommand:', err);
+                const success = document.execCommand('copy');
+                selection.removeAllRanges();
+                if (success) {
+                    OpsToolKit.showNotification('Formatted text copied! Paste into MS Word.', 'success', 3000);
+                } else {
+                    OpsToolKit.showNotification('Failed to copy formatted text', 'danger', 3000);
+                }
+            });
+        } catch (err) {
+            console.error('Failed to copy formatted text:', err);
+            selection.removeAllRanges();
+            OpsToolKit.showNotification('Failed to copy formatted text', 'danger', 3000);
+        }
+    }
+
+    // Copy markdown text to clipboard
+    function copyMarkdownText() {
+        const markdownText = document.getElementById('markdown-text').value;
+        navigator.clipboard.writeText(markdownText).then(() => {
+            OpsToolKit.showNotification('Markdown text copied to clipboard!', 'success', 2000);
         }).catch(err => {
             console.error('Failed to copy:', err);
             OpsToolKit.showNotification('Failed to copy text', 'danger', 3000);

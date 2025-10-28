@@ -104,6 +104,7 @@ def revise():
                 'revision_result': None,
                 'comparison': None,
                 'highlighted_text': None,
+                'markdown_text': None,
                 'options': {
                     'model_name': model_name,
                     'use_canadian_english': use_canadian_english
@@ -122,6 +123,7 @@ def revise():
                 # Get comparison and highlighting if successful
                 comparison = None
                 highlighted_text = None
+                markdown_text = None
                 if result['success']:
                     comparison = service.compare_texts(
                         result['original_text'],
@@ -131,12 +133,16 @@ def revise():
                         result['original_text'],
                         result['revised_text']
                     )
+                    markdown_text = service.convert_to_markdown(
+                        result['revised_text']
+                    )
 
                 # Update cache
                 _results_cache[result_id]['status'] = 'completed'
                 _results_cache[result_id]['revision_result'] = result
                 _results_cache[result_id]['comparison'] = comparison
                 _results_cache[result_id]['highlighted_text'] = highlighted_text
+                _results_cache[result_id]['markdown_text'] = markdown_text
 
             queue.enqueue(
                 request_id,
@@ -157,6 +163,7 @@ def revise():
             # Get comparison and highlighting if successful
             comparison = None
             highlighted_text = None
+            markdown_text = None
             if result['success']:
                 comparison = service.compare_texts(
                     result['original_text'],
@@ -164,6 +171,9 @@ def revise():
                 )
                 highlighted_text = service.highlight_changes(
                     result['original_text'],
+                    result['revised_text']
+                )
+                markdown_text = service.convert_to_markdown(
                     result['revised_text']
                 )
 
@@ -174,6 +184,7 @@ def revise():
                 'revision_result': result,
                 'comparison': comparison,
                 'highlighted_text': highlighted_text,
+                'markdown_text': markdown_text,
                 'options': {
                     'model_name': model_name,
                     'use_canadian_english': use_canadian_english

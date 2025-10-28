@@ -15,6 +15,12 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from flask import current_app
 
+from app.services.rss_manager.query_parser import (
+    parse_query,
+    is_advanced_query,
+    QueryParseError
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -87,6 +93,83 @@ class RSSService:
         return hashlib.sha256(xml_url.encode()).hexdigest()[:16]
 
     # =========================================================================
+    # Advanced Query Building
+    # =========================================================================
+
+    def _build_sql_from_ast(self, node: Dict[str, Any], params: List[Any]) -> str:
+        """
+        Recursively build SQL WHERE clause from AST node.
+
+        Args:
+            node: AST node (BINARY_OP, UNARY_OP, or FIELD)
+            params: List to accumulate query parameters
+
+        Returns:
+            SQL WHERE clause string (without 'WHERE' keyword)
+        """
+        node_type = node.get('type')
+
+        if node_type == 'FIELD':
+            # Leaf node: field:value
+            field = node['field']
+            value = node['value']
+            search_type = node['searchType']
+
+            if search_type == 'exact':
+                # Exact match: simple WHERE clause
+                params.append(value)
+                return f"{field} = ?"
+            else:
+                # FTS field: use subquery
+                if field == 'url':
+                    # Search both xml_url and html_url
+                    fts_query = f"(xml_url:{value} OR html_url:{value})"
+                else:
+                    fts_query = f"{field}:{value}"
+
+                params.append(fts_query)
+                return """rss_id IN (
+                    SELECT rss_id FROM rss_search
+                    WHERE rss_search MATCH ?
+                )"""
+
+        elif node_type == 'BINARY_OP':
+            # Binary operator: AND or OR
+            operator = node['operator']
+            left_sql = self._build_sql_from_ast(node['left'], params)
+            right_sql = self._build_sql_from_ast(node['right'], params)
+
+            return f"({left_sql}) {operator} ({right_sql})"
+
+        elif node_type == 'UNARY_OP':
+            # Unary operator: NOT
+            operator = node['operator']
+            operand_sql = self._build_sql_from_ast(node['operand'], params)
+
+            if operator == 'NOT':
+                return f"NOT ({operand_sql})"
+            else:
+                raise ValueError(f"Unknown unary operator: {operator}")
+
+        else:
+            raise ValueError(f"Unknown node type: {node_type}")
+
+    def _build_advanced_query(self, ast: Dict[str, Any]) -> Tuple[List[str], List[Any]]:
+        """
+        Build SQL query components from parsed AST.
+
+        Args:
+            ast: Parsed query AST from query_parser (tree structure)
+
+        Returns:
+            Tuple of (where_clauses, params)
+        """
+        params = []
+        where_clause = self._build_sql_from_ast(ast, params)
+
+        return [where_clause], params
+
+    # =========================================================================
     # CRUD Operations
     # =========================================================================
 
@@ -127,8 +210,31 @@ class RSSService:
             where_clauses = []
             params = []
 
-            # Search query (FTS5)
-            if search_query:
+            # Check if search_query uses advanced syntax
+            if search_query and is_advanced_query(search_query):
+                try:
+                    # Parse advanced query
+                    ast = parse_query(search_query)
+
+                    # Build SQL from AST
+                    adv_where, adv_params = self._build_advanced_query(ast)
+                    where_clauses.extend(adv_where)
+                    params.extend(adv_params)
+
+                    logger.info(f"Advanced query parsed successfully")
+                except QueryParseError as e:
+                    logger.error(f"Query parse error: {e}")
+                    # Return empty result with error message
+                    return {
+                        'subscriptions': [],
+                        'total': 0,
+                        'page': page,
+                        'per_page': per_page,
+                        'total_pages': 0,
+                        'error': str(e)
+                    }
+            elif search_query:
+                # Simple FTS5 search (backward compatibility)
                 where_clauses.append("""
                     rss_id IN (
                         SELECT rss_id FROM rss_search
@@ -137,7 +243,8 @@ class RSSService:
                 """)
                 params.append(search_query)
 
-            # Filters
+            # Dropdown filters (only if not overridden by advanced query)
+            # Note: Advanced query conditions take precedence
             if language:
                 where_clauses.append("language = ?")
                 params.append(language)

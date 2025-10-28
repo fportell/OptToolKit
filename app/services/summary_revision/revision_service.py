@@ -31,6 +31,15 @@ EDITING_GUIDELINES = """**EDITING GUIDELINES:**
 	- e.g., Write "Sao Paulo" instead of "São Paulo," "Malaga" instead of "Málaga"
 	- e.g., Keep French accents: "Montréal," "Québec," "Saint-Étienne"
 
+## Scientific Names
+- All scientific names (genus, species, and subspecies) must be italicized using HTML <em> tags.
+- Genus names should be capitalized; species names should be lowercase.
+	- e.g., "<em>Escherichia coli</em>" or "<em>E. coli</em>"
+	- e.g., "<em>Plasmodium falciparum</em>"
+	- e.g., "<em>Aedes aegypti</em>" (the mosquito species)
+	- e.g., "Infection with <em>Salmonella</em> species was confirmed"
+- Verify that all organism names, virus names, and bacterial species are properly formatted with italics.
+
 ## Tense Usage
 - Use appropriate English tenses based on whether there is a connection with the present:
 	- **Simple Past**: For completed actions with no present connection
@@ -163,7 +172,7 @@ class RevisionService:
                 return result
 
             # Build prompt
-            system_prompt = "You are a professional editor. Correct grammar, improve clarity, and eliminate redundancy. Maintain the original meaning and tone."
+            system_prompt = "You are a professional editor. Correct grammar, improve clarity, and eliminate redundancy. Maintain the original meaning and tone. When formatting scientific names (bacteria, viruses, organisms), you MUST use HTML <em> tags for italics. Return plain text with HTML <em> tags where italics are needed."
 
             if use_canadian_english:
                 user_prompt = f"Here is a revised version with Canadian English, improved clarity, and no redundancy considering these guidelines:\n{EDITING_GUIDELINES}\n**Summary to review:**\n{text}"
@@ -277,6 +286,21 @@ class RevisionService:
                 html_output.append(word[2:])
 
         return ' '.join(html_output)
+
+    def convert_to_markdown(self, text: str) -> str:
+        """
+        Convert HTML em tags to Markdown italics format.
+
+        Args:
+            text: Text with HTML <em> tags
+
+        Returns:
+            str: Text with Markdown *italics* format
+        """
+        import re
+        # Convert <em>...</em> to *...*
+        markdown_text = re.sub(r'<em>(.*?)</em>', r'*\1*', text)
+        return markdown_text
 
 
 # Global service instance
