@@ -8,7 +8,7 @@ Per plan.md: Session timeouts, file limits, concurrent users configuration.
 import os
 from pathlib import Path
 from typing import Dict, Any
-
+from dotenv import load_dotenv
 
 # Base directory
 BASE_DIR = Path(__file__).parent.parent
