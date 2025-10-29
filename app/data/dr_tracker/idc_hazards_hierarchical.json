@@ -48,17 +48,26 @@
               {
                 "canonical_hazard": "Circulating vaccine-derived poliovirus type 1",
                 "child": null,
-                "variant": ["cVDPV1"]
+                "variant": [
+                  "cVDPV1",
+                  "variant poliovirus type 1"
+                ]
               },
               {
                 "canonical_hazard": "Circulating vaccine-derived poliovirus type 2",
                 "child": null,
-                "variant": ["cVDPV2"]
+                "variant": [
+                  "cVDPV2",
+                  "variant poliovirus type 2"
+                ]
               },
               {
                 "canonical_hazard": "Circulating vaccine-derived poliovirus type 3",
                 "child": null,
-                "variant": ["cVDPV3"]
+                "variant": [
+                  "cVDPV3",
+                  "variant poliovirus type 3"
+                ]
               }
             ],
     "variant": null
@@ -250,7 +259,9 @@
   {
     "canonical_hazard": "Chikungunya virus disease",
     "child": null,
-    "variant": null
+    "variant": [
+      "chikungunya ",
+      "chikungunya fever"]
   },
   {
     "canonical_hazard": "Chlamydia",
@@ -370,7 +381,10 @@
   {
     "canonical_hazard": "Diphtheria",
     "child": null,
-    "variant": null
+    "variant": [
+      "Corynebacterium diphtheriae",
+      "diphtheritic infection"
+    ]
   },
   {
     "canonical_hazard": "Diphtheria vaccines",
@@ -445,7 +459,18 @@
   {
     "canonical_hazard": "Escherichia coli",
     "child": null,
-    "variant": null
+    "variant": [
+      "E. coli",
+      "Shiga toxin-producing Escherichia coli",
+      "E. coli O157:H7",
+      "E. coli O157",
+      "E. coli O104:H4",
+      "E. coli O104",
+      "E. coli O103",
+      "E. coli O26",
+      "E. coli O111",
+      "E. coli O145"
+    ]
   },
   {
     "canonical_hazard": "Fifth disease",
@@ -485,7 +510,7 @@
   {
     "canonical_hazard": "Gonorrhoea",
     "child": null,
-    "variant": null
+    "variant": ["gonorrhea"]
   },
   {
     "canonical_hazard": "Guillain-Barré syndrome",
@@ -603,7 +628,12 @@
               },
               {"canonical_hazard": "Influenza A H5N1 virus",
               "child": null,
-              "variant": null
+              "variant": [
+                "H5N1 avian influenza",
+                "H5N1 bird flu",
+                "avian influenza A H5N1",
+                "bird flu H5N1"
+              ]
               },
               {"canonical_hazard": "Influenza A H7N9 virus",
               "child": null,
@@ -682,7 +712,7 @@
   {
     "canonical_hazard": "Legionellosis",
     "child": null,
-    "variant": null
+    "variant": ["Legionnaires’ disease"]
   },
   {
     "canonical_hazard": "Leishmaniasis",
@@ -766,27 +796,51 @@
               },
               {"canonical_hazard": "Monkeypox virus Clade I",
               "child": null,
-              "variant": null
+              "variant": [
+                "mpox virus clade I",
+                "mpox variant clade I",
+                "mpox clade I"
+              ]
               },
               {"canonical_hazard": "Monkeypox virus Clade Ia",
               "child": null,
-              "variant": null
+              "variant": [
+                "mpox virus clade Ia",
+                "mpox variant clade Ia",
+                "mpox clade Ia"
+              ]
               },
               {"canonical_hazard": "Monkeypox virus Clade Ib",
               "child": null,
-              "variant": null
+              "variant": [
+                "mpox virus clade Ib",
+                "mpox variant clade Ib",
+                "mpox clade Ib"
+              ]
               },
               {"canonical_hazard": "Monkeypox virus Clade II",
               "child": null,
-              "variant": null
+              "variant": [
+                "mpox virus clade II",
+                "mpox variant clade II",
+                "mpox clade II"
+              ]
               },
               {"canonical_hazard": "Monkeypox virus Clade IIa",
               "child": null,
-              "variant": null
+              "variant": [
+                "mpox virus clade IIa",
+                "mpox variant clade IIa",
+                "mpox clade IIa"
+              ]
               },
               {"canonical_hazard": "Monkeypox virus Clade IIb",
               "child": null,
-              "variant": null
+              "variant": [
+                "mpox virus clade IIb",
+                "mpox variant clade IIb",
+                "mpox clade IIb"
+              ]
               }
 			 ],
     "variant": null
@@ -1165,7 +1219,7 @@
               {
                 "canonical_hazard": "Streptococcus pyogenes (Invasive group A streptococcal disease iGA)",
                 "child": null,
-                "variant": null
+                "variant": ["invasive pneumococcal disease"]
               },
               {
                 "canonical_hazard": "Scarlet fever",
@@ -1276,6 +1330,11 @@
     "variant": null
   },
   {
+    "canonical_hazard": "Unidentified disease",
+    "child": null,
+    "variant": ["Unknown disease"]
+  },
+  {
     "canonical_hazard": "Unintentional exposure to radiation",
     "child": null,
     "variant": null
@@ -1366,6 +1425,10 @@
   {
     "canonical_hazard": "Zika virus disease",
     "child": null,
-    "variant": null
+    "variant": [
+      "Zika virus (ZIKV)",
+      "Zika",
+      "zica virus"
+    ]
   }
 ]
