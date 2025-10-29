@@ -110,3 +110,6 @@ app/data/chatbot/embedding_cache/
 *.temp
 *.bak
 *.backup
+
+# additional folder and files
+dev_images/

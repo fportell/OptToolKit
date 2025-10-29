@@ -260,7 +260,7 @@
     "canonical_hazard": "Chikungunya virus disease",
     "child": null,
     "variant": [
-      "chikungunya ",
+      "chikungunya",
       "chikungunya fever"]
   },
   {
@@ -345,7 +345,7 @@
               "child": null,
               "variant": [
                 "DENV-2",
-                "DENV3",
+                "DENV2",
                 "DENV-II"
               ]
               },
@@ -737,7 +737,7 @@
   {
     "canonical_hazard": "Lyme borreliosis",
     "child": null,
-    "variant": null
+    "variant": ["Lyme disease"]
   },
   {
     "canonical_hazard": "Marburg virus disease",

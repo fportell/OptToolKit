@@ -16,6 +16,8 @@
         color: #ffffff !important;
         font-weight: 600 !important;
         z-index: 10;
+        text-align: center !important;
+        vertical-align: middle !important;
     }
 
     /* Ensure thead background is also dark */
@@ -48,6 +50,55 @@
     .hazard-badge, .program-badge {
         display: inline-block;
         margin: 2px;
+    }
+
+    /* HAZARD column fixed width with wrapping */
+    .entries-table .hazard-column {
+        width: 200px;
+        max-width: 200px;
+        word-wrap: break-word;
+        white-space: normal;
+        vertical-align: middle;
+    }
+
+    /* Ensure hazard display container allows wrapping */
+    .hazard-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    /* Enable text wrapping in hazard badges */
+    .hazard-badge {
+        white-space: normal !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        text-align: left;
+        line-height: 1.4;
+        padding: 4px 8px;
+    }
+
+    /* Enable text wrapping in program badges */
+    .program-badge {
+        white-space: normal !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        text-align: left;
+        line-height: 1.4;
+        padding: 4px 8px;
+    }
+
+    /* Smaller edit buttons for hazards and programs */
+    .edit-hazard, .edit-program {
+        padding: 2px 6px !important;
+        font-size: 0.75rem !important;
+        min-width: 24px;
+        height: 24px;
+        line-height: 1;
+    }
+
+    .edit-hazard i, .edit-program i {
+        font-size: 0.7rem;
     }
 
     /* Modal search styling */
@@ -195,7 +246,7 @@
                         <thead>
                             <tr>
                                 <th style="min-width: 80px;">ENTRY_#</th>
-                                <th style="min-width: 200px;">HAZARD</th>
+                                <th class="hazard-column">HAZARD</th>
                                 <th style="min-width: 100px;">DATE</th>
                                 <th style="min-width: 150px;">LOCATION</th>
                                 <th style="min-width: 300px;">SUMMARY</th>
@@ -217,7 +268,7 @@
                                 </td>
 
                                 <!-- Hazard (Click to edit) -->
-                                <td>
+                                <td class="hazard-column">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="flex-grow-1">
                                             <span class="hazard-display" data-index="{{ loop.index0 }}">
@@ -230,7 +281,7 @@
                                                 {% endif %}
                                             </span>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-primary edit-hazard ms-2"
+                                        <button class="btn btn-outline-primary edit-hazard ms-2"
                                                 data-index="{{ loop.index0 }}"
                                                 title="Edit hazards">
                                             <i class="bi bi-pencil"></i>
@@ -294,7 +345,7 @@
                                                 {% endif %}
                                             </span>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-success edit-program ms-2"
+                                        <button class="btn btn-outline-success edit-program ms-2"
                                                 data-index="{{ loop.index0 }}"
                                                 title="Edit program areas">
                                             <i class="bi bi-pencil"></i>

@@ -257,20 +257,26 @@ class HazardMatcher:
         """
         Match multiple hazards at once.
 
+        Deduplicates matched hazards to avoid repeating the same canonical
+        hazard when multiple variant terms map to it. Preserves order
+        (first occurrence wins).
+
         Args:
             extracted_hazards: List of hazard strings
 
         Returns:
-            List of matched display names (empty strings filtered out)
+            List of unique matched display names (duplicates removed)
         """
         matched = []
+        seen = set()
 
         for hazard in extracted_hazards:
             match = self.match_hazard(hazard)
-            if match:
+            if match and match not in seen:
                 matched.append(match)
+                seen.add(match)
 
-        logger.info(f"Matched {len(matched)}/{len(extracted_hazards)} hazards")
+        logger.info(f"Matched {len(matched)}/{len(extracted_hazards)} hazards (deduplicated)")
         return matched
 
     def get_all_hazards(self) -> List[str]:
