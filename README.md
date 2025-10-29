@@ -114,14 +114,7 @@ LOG_LEVEL=INFO
 LOG_FILE=logs/opstoolkit.log
 ```
 
-### 4. Set Up RSS Manager (Optional)
-```bash
-cd legacy_code/rss-manager
-npm install
-npm start  # Runs on port 3001
-```
-
-### 5. Initialize Directories
+### 4. Initialize Directories
 ```bash
 mkdir -p logs
 mkdir -p instance/uploads
@@ -147,6 +140,35 @@ Access at: http://localhost:5000
 ```bash
 export FLASK_ENV=production
 gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
+```
+
+#### Gunicorn Worker Configuration
+
+The `-w` (workers) parameter should be tuned based on your hardware:
+
+**General formula:** `(2 × num_cores) + 1`
+
+**OpsToolKit-specific recommendations** (I/O-bound application):
+- **2 CPUs:** `gunicorn -w 3` or `-w 4` (3-4 workers, ~3-4GB RAM needed)
+- **4 CPUs:** `gunicorn -w 4` to `-w 6` (4-6 workers, ~6-8GB RAM needed)
+- **8 CPUs:** `gunicorn -w 8` to `-w 12` (8-12 workers, ~8-12GB RAM needed)
+
+**Key considerations:**
+- Each worker loads the full app + ML models (~1GB per worker)
+- More workers help with I/O-bound tasks (OpenAI API calls, file uploads)
+- Start with `workers = num_cores` and tune based on CPU/memory monitoring
+- For low-traffic deployments (2-3 users), 2-3 workers is sufficient
+
+**Example configurations:**
+```bash
+# Small deployment (2 CPUs, 4GB RAM, 2-3 users)
+gunicorn -w 3 -b 0.0.0.0:5000 wsgi:app
+
+# Standard deployment (4 CPUs, 6-8GB RAM, 3-5 users)
+gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
+
+# High-traffic deployment (8 CPUs, 12GB RAM, 10+ users)
+gunicorn -w 10 -b 0.0.0.0:5000 wsgi:app
 ```
 
 ## 🧪 Testing
