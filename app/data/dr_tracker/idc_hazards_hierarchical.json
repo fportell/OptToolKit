@@ -567,19 +567,11 @@
               "child": null,
               "variant": null
               },
-              {"canonical_hazard": "Other specified Creutzfeldt-Jakob disease",
-              "child": null,
-              "variant": null
-              },
               {"canonical_hazard": "Variant Creutzfeldt-Jakob Disease",
               "child": null,
               "variant": null
               },
-              {"canonical_hazard": "Other acquired Creutzfeldt-Jakob Disease",
-              "child": null,
-              "variant": null
-              },
-              {"canonical_hazard": "Unspecified acquired prion disease",
+              {"canonical_hazard": "unspecified",
               "child": null,
               "variant": null
               }
@@ -781,6 +773,11 @@
   },
   {
     "canonical_hazard": "Middle East respiratory syndrome",
+    "child": null,
+    "variant": null
+  },
+  {
+    "canonical_hazard": "Miscellaneous",
     "child": null,
     "variant": null
   },
@@ -1217,7 +1214,7 @@
               "variant": null
               },
               {
-                "canonical_hazard": "Streptococcus pyogenes (Invasive group A streptococcal disease iGA)",
+                "canonical_hazard": "Streptococcus pyogenes (Invasive group A streptococcal disease iGAS)",
                 "child": null,
                 "variant": ["invasive pneumococcal disease"]
               },
